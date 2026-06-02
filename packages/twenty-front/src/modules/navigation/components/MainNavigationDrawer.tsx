@@ -3,6 +3,7 @@ import { NavigationDrawerAiChatContent } from '@/ai/components/NavigationDrawerA
 import { MainNavigationDrawerNavigationContent } from '@/navigation/components/MainNavigationDrawerNavigationContent';
 import { MainNavigationDrawerTabsRow } from '@/navigation/components/MainNavigationDrawerTabsRow';
 import { useHasPermissionFlag } from '@/settings/roles/hooks/useHasPermissionFlag';
+import { NavigationDrawerTeamContent } from '@/team/components/NavigationDrawerTeamContent';
 import { NavigationDrawer } from '@/ui/navigation/navigation-drawer/components/NavigationDrawer';
 import { NavigationDrawerFixedContent } from '@/ui/navigation/navigation-drawer/components/NavigationDrawerFixedContent';
 import { NavigationDrawerScrollableContent } from '@/ui/navigation/navigation-drawer/components/NavigationDrawerScrollableContent';
@@ -21,6 +22,8 @@ export const MainNavigationDrawer = ({ className }: { className?: string }) => {
   const showAiChatContent =
     hasAiPermission &&
     navigationDrawerActiveTab === NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY;
+  const showTeamContent =
+    navigationDrawerActiveTab === NAVIGATION_DRAWER_TABS.TEAM_COMMS;
 
   return (
     <NavigationDrawer
@@ -34,6 +37,8 @@ export const MainNavigationDrawer = ({ className }: { className?: string }) => {
       <NavigationDrawerScrollableContent>
         {showAiChatContent ? (
           <NavigationDrawerAiChatContent />
+        ) : showTeamContent ? (
+          <NavigationDrawerTeamContent />
         ) : (
           <MainNavigationDrawerNavigationContent />
         )}

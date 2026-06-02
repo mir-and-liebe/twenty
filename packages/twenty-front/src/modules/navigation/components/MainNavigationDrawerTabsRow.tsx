@@ -4,6 +4,7 @@ import {
   IconComment,
   IconHome,
   IconMessageCirclePlus,
+  IconUsers,
   OverflowingTextWithTooltip,
 } from 'twenty-ui/display';
 import { ThemeContext, themeCssVariables } from 'twenty-ui/theme-constants';
@@ -13,6 +14,8 @@ import { useContext } from 'react';
 
 import { useSwitchToNewAiChat } from '@/ai/hooks/useSwitchToNewAiChat';
 import { useHasPermissionFlag } from '@/settings/roles/hooks/useHasPermissionFlag';
+import { TEAM_COMMS_PATH } from '@/team/constants/teamCommsPath';
+import { useTeamUnreadBadgeCount } from '@/team/hooks/useTeamUnreadBadgeCount';
 import { NavigationDrawerAnimatedCollapseWrapper } from '@/ui/navigation/navigation-drawer/components/NavigationDrawerAnimatedCollapseWrapper';
 import { isNavigationDrawerExpandedState } from '@/ui/navigation/states/isNavigationDrawerExpanded';
 import { navigationDrawerActiveTabState } from '@/ui/navigation/states/navigationDrawerActiveTabState';
@@ -24,6 +27,7 @@ import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
 import { PermissionFlagType } from '~/generated-metadata/graphql';
+import { useNavigate } from 'react-router-dom';
 
 const StyledRow = styled.div<{ isExpanded: boolean }>`
   align-items: center;
@@ -46,7 +50,7 @@ const StyledTabsPill = styled.div`
   gap: ${themeCssVariables.spacing[0.5]};
   height: ${themeCssVariables.spacing[7]};
   padding: 3px;
-  width: ${themeCssVariables.spacing[18]};
+  width: 108px;
 `;
 
 const StyledTabWrapper = styled.div<{ isActive: boolean }>`
@@ -77,7 +81,27 @@ const StyledTabIcon = styled.div`
   display: flex;
   height: ${themeCssVariables.spacing[5]};
   justify-content: center;
+  position: relative;
   width: ${themeCssVariables.spacing[5]};
+`;
+
+const StyledTeamUnreadBadge = styled.span`
+  align-items: center;
+  background: ${themeCssVariables.color.blue};
+  border: 1px solid ${themeCssVariables.background.secondary};
+  border-radius: ${themeCssVariables.border.radius.pill};
+  color: ${themeCssVariables.font.color.inverted};
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: ${themeCssVariables.font.weight.semiBold};
+  height: ${themeCssVariables.spacing[4]};
+  justify-content: center;
+  line-height: 1;
+  min-width: ${themeCssVariables.spacing[4]};
+  padding: 0 ${themeCssVariables.spacing['0.5']};
+  position: absolute;
+  right: -${themeCssVariables.spacing[1]};
+  top: -${themeCssVariables.spacing[1]};
 `;
 
 const StyledNewChatIcon = styled.div`
@@ -141,19 +165,20 @@ export const MainNavigationDrawerTabsRow = () => {
   const [navigationDrawerActiveTab, setNavigationDrawerActiveTab] =
     useAtomState(navigationDrawerActiveTabState);
   const { switchToNewChat } = useSwitchToNewAiChat();
+  const navigate = useNavigate();
   const setIsNavigationDrawerExpanded = useSetAtomState(
     isNavigationDrawerExpandedState,
   );
   const hasAiPermission = useHasPermissionFlag(PermissionFlagType.AI);
+  const teamUnreadBadgeCount = useTeamUnreadBadgeCount();
 
   const isExpanded = isNavigationDrawerExpanded || isMobile;
 
-  if (!hasAiPermission) {
-    return null;
-  }
-
   const handleTabClick = (tab: NavigationDrawerActiveTab) => () => {
     setNavigationDrawerActiveTab(tab);
+    if (tab === NAVIGATION_DRAWER_TABS.TEAM_COMMS) {
+      navigate(TEAM_COMMS_PATH);
+    }
   };
 
   const handleTabKeyDown =
@@ -217,34 +242,70 @@ export const MainNavigationDrawerTabsRow = () => {
           </StyledTabWrapper>
           <StyledTabWrapper
             isActive={
-              navigationDrawerActiveTab ===
-              NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY
+              navigationDrawerActiveTab === NAVIGATION_DRAWER_TABS.TEAM_COMMS
             }
             role="tab"
             aria-selected={
-              navigationDrawerActiveTab ===
-              NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY
+              navigationDrawerActiveTab === NAVIGATION_DRAWER_TABS.TEAM_COMMS
             }
-            aria-label={t`Chat`}
+            aria-label={t`Team`}
             tabIndex={
-              navigationDrawerActiveTab ===
-              NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY
+              navigationDrawerActiveTab === NAVIGATION_DRAWER_TABS.TEAM_COMMS
                 ? 0
                 : -1
             }
-            onClick={handleTabClick(NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY)}
-            onKeyDown={handleTabKeyDown(NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY)}
+            onClick={handleTabClick(NAVIGATION_DRAWER_TABS.TEAM_COMMS)}
+            onKeyDown={handleTabKeyDown(NAVIGATION_DRAWER_TABS.TEAM_COMMS)}
           >
             <StyledTabIcon>
-              <IconComment
+              <IconUsers
                 size={theme.icon.size.md}
                 color={getTabIconColor(
                   navigationDrawerActiveTab ===
-                    NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY,
+                    NAVIGATION_DRAWER_TABS.TEAM_COMMS,
                 )}
               />
+              {teamUnreadBadgeCount > 0 ? (
+                <StyledTeamUnreadBadge>
+                  {teamUnreadBadgeCount > 99 ? '99+' : teamUnreadBadgeCount}
+                </StyledTeamUnreadBadge>
+              ) : null}
             </StyledTabIcon>
           </StyledTabWrapper>
+          {hasAiPermission ? (
+            <StyledTabWrapper
+              isActive={
+                navigationDrawerActiveTab ===
+                NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY
+              }
+              role="tab"
+              aria-selected={
+                navigationDrawerActiveTab ===
+                NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY
+              }
+              aria-label={t`Chat`}
+              tabIndex={
+                navigationDrawerActiveTab ===
+                NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY
+                  ? 0
+                  : -1
+              }
+              onClick={handleTabClick(NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY)}
+              onKeyDown={handleTabKeyDown(
+                NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY,
+              )}
+            >
+              <StyledTabIcon>
+                <IconComment
+                  size={theme.icon.size.md}
+                  color={getTabIconColor(
+                    navigationDrawerActiveTab ===
+                      NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY,
+                  )}
+                />
+              </StyledTabIcon>
+            </StyledTabWrapper>
+          ) : null}
         </StyledTabsPill>
       </NavigationDrawerAnimatedCollapseWrapper>
       <StyledNewChatButtonWrapper isExpanded={isExpanded}>

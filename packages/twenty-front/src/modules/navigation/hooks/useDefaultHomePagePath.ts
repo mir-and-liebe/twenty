@@ -10,9 +10,15 @@ import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomState
 import { viewsSelector } from '@/views/states/selectors/viewsSelector';
 import isEmpty from 'lodash.isempty';
 import { useCallback, useMemo } from 'react';
-import { AppPath, SettingsPath } from 'twenty-shared/types';
+import {
+  AppPath,
+  CoreObjectNameSingular,
+  SettingsPath,
+} from 'twenty-shared/types';
 import { getAppPath, getSettingsPath, isDefined } from 'twenty-shared/utils';
 import { useStore } from 'jotai';
+
+const DEFAULT_HOME_OBJECT_NAME_SINGULAR = CoreObjectNameSingular.Opportunity;
 
 export const useDefaultHomePagePath = () => {
   const store = useStore();
@@ -70,6 +76,17 @@ export const useDefaultHomePagePath = () => {
   }, [getFirstView, readableNonSystemObjectMetadataItems]);
 
   const getDefaultObjectPathInfo = useCallback(() => {
+    const defaultObjectMetadataItem = readableNonSystemObjectMetadataItems.find(
+      (item) => item.nameSingular === DEFAULT_HOME_OBJECT_NAME_SINGULAR,
+    );
+
+    if (isDefined(defaultObjectMetadataItem)) {
+      return {
+        view: getFirstView(defaultObjectMetadataItem.id),
+        objectMetadataItem: defaultObjectMetadataItem,
+      };
+    }
+
     const lastVisitedObjectMetadataItemId = store.get(
       lastVisitedObjectMetadataItemIdState.atom,
     );
@@ -92,6 +109,7 @@ export const useDefaultHomePagePath = () => {
     firstObjectPathInfo,
     getActiveObjectMetadataItemMatchingId,
     getFirstView,
+    readableNonSystemObjectMetadataItems,
     store,
   ]);
 

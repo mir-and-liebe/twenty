@@ -5,6 +5,7 @@ import { VerifyLoginTokenEffect } from '@/auth/components/VerifyLoginTokenEffect
 
 import { VerifyEmailEffect } from '@/auth/components/VerifyEmailEffect';
 import indexAppPath from '@/navigation/utils/indexAppPath';
+import { TEAM_COMMS_PATH } from '@/team/constants/teamCommsPath';
 import { BlankLayout } from '@/ui/layout/page/components/BlankLayout';
 import { DefaultLayout } from '@/ui/layout/page/components/DefaultLayout';
 import { AppPath } from 'twenty-shared/types';
@@ -97,6 +98,12 @@ const BookCall = lazy(() =>
 const StandalonePageLayoutPage = lazy(() =>
   import('~/pages/page-layout/StandalonePageLayoutPage').then((module) => ({
     default: module.StandalonePageLayoutPage,
+  })),
+);
+
+const TeamPage = lazy(() =>
+  import('~/pages/team/TeamPage').then((module) => ({
+    default: module.TeamPage,
   })),
 );
 
@@ -210,6 +217,14 @@ export const useCreateAppRouter = (
             }
           />
           <Route path={indexAppPath.getIndexAppPath()} element={<></>} />
+          <Route
+            path={TEAM_COMMS_PATH}
+            element={
+              <LazyRoute>
+                <TeamPage />
+              </LazyRoute>
+            }
+          />
           <Route
             path={AppPath.RecordIndexPage}
             element={

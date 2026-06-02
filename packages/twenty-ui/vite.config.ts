@@ -101,6 +101,12 @@ export default defineConfig(({ command }) => {
       {
         name: 'copy-theme-css',
         closeBundle() {
+          const styleCssPath = path.resolve(__dirname, 'dist/style.css');
+
+          if (!fs.existsSync(styleCssPath)) {
+            fs.writeFileSync(styleCssPath, '');
+          }
+
           const themeCssFiles = ['theme-light.css', 'theme-dark.css'];
           for (const file of themeCssFiles) {
             fs.copyFileSync(

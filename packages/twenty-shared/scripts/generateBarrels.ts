@@ -63,13 +63,14 @@ const createTypeScriptFile = ({
 const getLastPathFolder = (pathStr: string) => path.basename(pathStr);
 
 const getSubDirectoryPaths = (directoryPath: string): string[] => {
-  const pattern = slash(path.join(directoryPath, '*/'));
-  return globSync(pattern, {
+  return globSync('*/', {
     ignore: [...EXCLUDED_DIRECTORIES],
-    cwd: SRC_PATH,
+    cwd: directoryPath,
     nodir: false,
     maxDepth: 1,
-  }).sort((a, b) => a.localeCompare(b));
+  })
+    .map((directory) => path.join(directoryPath, directory))
+    .sort((a, b) => a.localeCompare(b));
 };
 
 const partitionFileExportsByType = (declarations: DeclarationOccurrence[]) => {
@@ -276,16 +277,15 @@ const getTypeScriptFiles = (
   directoryPath: string,
   includeIndex: boolean = false,
 ): string[] => {
-  const pattern = slash(path.join(directoryPath, '**', '*.{ts,tsx}'));
-  const files = globSync(pattern, {
-    cwd: SRC_PATH,
+  const files = globSync('**/*.{ts,tsx}', {
+    cwd: directoryPath,
     nodir: true,
     ignore: [
       ...EXCLUDED_EXTENSIONS,
       ...EXCLUDED_DIRECTORIES,
       ...EXCLUDED_FILES,
     ],
-  });
+  }).map((file) => path.join(directoryPath, file));
 
   return files.filter(
     (file) =>

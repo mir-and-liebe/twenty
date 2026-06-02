@@ -1,18 +1,35 @@
 import { Injectable, Logger, type OnModuleInit } from '@nestjs/common';
 
+import { existsSync, readFileSync } from 'fs';
+import { join } from 'path';
+
 import { FileStorageDriverFactory } from 'src/engine/core-modules/file-storage/file-storage-driver.factory';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
-import defaultAiProviders from 'src/engine/metadata-modules/ai/ai-models/ai-providers.json';
 import { aiProvidersConfigSchema } from 'src/engine/metadata-modules/ai/ai-models/types/ai-providers-config.schema';
 import { type AiProvidersConfig } from 'src/engine/metadata-modules/ai/ai-models/types/ai-providers-config.type';
 import { normalizeAiProviders } from 'src/engine/metadata-modules/ai/ai-models/utils/normalize-ai-providers.util';
 import { streamToBuffer } from 'src/utils/stream-to-buffer';
 
+const getBundledAiProviders = (): AiProvidersConfig => {
+  const compiledCatalogPath = join(__dirname, '../ai-providers.json');
+  const devCatalogPath = join(
+    process.cwd(),
+    'src/engine/metadata-modules/ai/ai-models/ai-providers.json',
+  );
+  const catalogPath = existsSync(compiledCatalogPath)
+    ? compiledCatalogPath
+    : devCatalogPath;
+
+  return aiProvidersConfigSchema.parse(
+    JSON.parse(readFileSync(catalogPath, 'utf-8')),
+  );
+};
+
 @Injectable()
 export class DefaultAiCatalogService implements OnModuleInit {
   private readonly logger = new Logger(DefaultAiCatalogService.name);
   private catalog: AiProvidersConfig = normalizeAiProviders(
-    defaultAiProviders as AiProvidersConfig,
+    getBundledAiProviders(),
   );
 
   constructor(

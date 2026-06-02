@@ -77,29 +77,5 @@ export const getPageLayoutFlatEntitySeeds = ({
       updatedAt: now,
       deletedAt: null,
     },
-    {
-      id: generateSeedId(
-        workspaceId,
-        PAGE_LAYOUT_SEEDS.DOCUMENTATION_STANDALONE_PAGE,
-      ),
-      universalIdentifier: generateSeedId(
-        workspaceId,
-        PAGE_LAYOUT_SEEDS.DOCUMENTATION_STANDALONE_PAGE,
-      ),
-      applicationId: flatApplication.id,
-      applicationUniversalIdentifier: flatApplication.universalIdentifier,
-      workspaceId,
-      name: 'Documentation',
-      type: PageLayoutType.STANDALONE_PAGE,
-      objectMetadataId: null,
-      objectMetadataUniversalIdentifier: null,
-      tabIds: [],
-      tabUniversalIdentifiers: [],
-      defaultTabToFocusOnMobileAndSidePanelId: null,
-      defaultTabToFocusOnMobileAndSidePanelUniversalIdentifier: null,
-      createdAt: now,
-      updatedAt: now,
-      deletedAt: null,
-    },
   ];
 };

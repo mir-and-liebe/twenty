@@ -78,11 +78,5 @@ export const getPageLayoutTabFlatEntitySeeds = ({
       1,
       PAGE_LAYOUT_SEEDS.TEAM_DASHBOARD,
     ),
-    buildTab(
-      PAGE_LAYOUT_TAB_SEEDS.DOCUMENTATION,
-      'Documentation',
-      0,
-      PAGE_LAYOUT_SEEDS.DOCUMENTATION_STANDALONE_PAGE,
-    ),
   ];
 };

@@ -33,6 +33,9 @@ export const fileFolderConfigs: Record<FileFolder, FileFolderConfig> = {
   [FileFolder.AgentChat]: {
     ignoreExpirationToken: false,
   },
+  [FileFolder.TeamComms]: {
+    ignoreExpirationToken: false,
+  },
   [FileFolder.BuiltLogicFunction]: {
     ignoreExpirationToken: false,
   },

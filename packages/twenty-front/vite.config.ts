@@ -16,8 +16,13 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 import { createWywProfilingPlugin } from 'twenty-shared/vite';
 
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, '');
+  const frontSourceDirectory = path.resolve(__dirname, 'src');
+  const twentyUiSourceDirectory = path.resolve(__dirname, '../twenty-ui/src');
 
   const {
     VITE_BUILD_SOURCEMAP,
@@ -84,7 +89,14 @@ export default defineConfig(({ mode }) => {
       }),
       createWywProfilingPlugin(
         wyw({
-          include: [path.resolve(__dirname, 'src') + '/**/*.{ts,tsx}'],
+          include: [
+            new RegExp(
+              `^${escapeRegExp(frontSourceDirectory)}\\/.*\\.(ts|tsx)$`,
+            ),
+            new RegExp(
+              `^${escapeRegExp(twentyUiSourceDirectory)}\\/.*\\.(ts|tsx)$`,
+            ),
+          ],
           exclude: [
             '**/generated-metadata/**',
             '**/generated-admin/**',
@@ -242,9 +254,46 @@ export default defineConfig(({ mode }) => {
       },
     },
     resolve: {
-      alias: {
-        path: 'rollup-plugin-node-polyfills/polyfills/path',
-      },
+      alias: [
+        {
+          find: 'twenty-ui/style.css',
+          replacement: path.resolve(__dirname, '../twenty-ui/dist/style.css'),
+        },
+        {
+          find: 'twenty-ui/theme-light.css',
+          replacement: path.resolve(
+            __dirname,
+            '../twenty-ui/dist/theme-light.css',
+          ),
+        },
+        {
+          find: 'twenty-ui/theme-dark.css',
+          replacement: path.resolve(
+            __dirname,
+            '../twenty-ui/dist/theme-dark.css',
+          ),
+        },
+        {
+          find: /^twenty-ui\/(.+)$/,
+          replacement: `${twentyUiSourceDirectory}/$1/index.ts`,
+        },
+        {
+          find: 'twenty-ui',
+          replacement: `${twentyUiSourceDirectory}/index.ts`,
+        },
+        {
+          find: /^@ui\/(.+)$/,
+          replacement: `${twentyUiSourceDirectory}/$1`,
+        },
+        {
+          find: /^@assets\/(.+)$/,
+          replacement: `${twentyUiSourceDirectory}/assets/$1`,
+        },
+        {
+          find: 'path',
+          replacement: 'rollup-plugin-node-polyfills/polyfills/path',
+        },
+      ],
     },
   };
 });

@@ -58,7 +58,8 @@ const renderHooks = ({
             {
               id: 'viewId',
               name: 'Test View',
-              objectMetadataId: getMockObjectMetadataItemOrThrow('company').id,
+              objectMetadataId:
+                getMockObjectMetadataItemOrThrow('opportunity').id,
               type: ViewType.TABLE,
               key: null,
               isCompact: false,
@@ -125,7 +126,9 @@ describe('useDefaultHomePagePath', () => {
     });
 
     await waitFor(() => {
-      expect(result.current.defaultHomePagePath).toEqual('/objects/companies');
+      expect(result.current.defaultHomePagePath).toEqual(
+        '/objects/opportunities',
+      );
     });
   });
   it('should return proper path when currentUser is defined and view exists', async () => {
@@ -136,7 +139,7 @@ describe('useDefaultHomePagePath', () => {
 
     await waitFor(() => {
       expect(result.current.defaultHomePagePath).toEqual(
-        '/objects/companies?viewId=viewId',
+        '/objects/opportunities?viewId=viewId',
       );
     });
   });

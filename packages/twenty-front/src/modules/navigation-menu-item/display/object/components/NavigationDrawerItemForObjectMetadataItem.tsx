@@ -6,6 +6,7 @@ import { isLayoutCustomizationModeEnabledState } from '@/layout-customization/st
 import { lastClickedNavigationMenuItemIdState } from '@/navigation-menu-item/common/states/lastClickedNavigationMenuItemIdState';
 import { recordIdentifierToObjectRecordIdentifier } from '@/navigation-menu-item/common/utils/recordIdentifierToObjectRecordIdentifier';
 import { useIdentifyActiveNavigationMenuItems } from '@/navigation-menu-item/display/hooks/useIdentifyActiveNavigationMenuItems';
+import { DashboardNavigationDrawerItem } from '@/navigation-menu-item/display/object/components/DashboardNavigationDrawerItem';
 import { getNavigationMenuItemComputedLink } from '@/navigation-menu-item/display/utils/getNavigationMenuItemComputedLink';
 import { getNavigationMenuItemLabel } from '@/navigation-menu-item/display/utils/getNavigationMenuItemLabel';
 import { ObjectIconWithViewOverlay } from '@/navigation-menu-item/display/view/components/ObjectIconWithViewOverlay';
@@ -172,6 +173,23 @@ export const NavigationDrawerItemForObjectMetadataItem = ({
 
   const showInaccessibleLock =
     isLayoutCustomizationModeEnabled && !canReadObjectRecords;
+
+  if (
+    objectMetadataItem.nameSingular === CoreObjectNameSingular.Dashboard &&
+    isObject &&
+    !isLayoutCustomizationModeEnabled &&
+    !isDragging
+  ) {
+    return (
+      <DashboardNavigationDrawerItem
+        label={label}
+        navigationPath={navigationPath}
+        isActive={isActive}
+        Icon={Icon}
+        iconColor={iconThemeColor}
+      />
+    );
+  }
 
   return (
     <NavigationDrawerItem

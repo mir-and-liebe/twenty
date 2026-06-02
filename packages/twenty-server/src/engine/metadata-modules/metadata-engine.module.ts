@@ -24,6 +24,7 @@ import { RoleModule } from 'src/engine/metadata-modules/role/role.module';
 import { RouteTriggerModule } from 'src/engine/metadata-modules/route-trigger/route-trigger.module';
 import { SearchFieldMetadataModule } from 'src/engine/metadata-modules/search-field-metadata/search-field-metadata.module';
 import { SkillModule } from 'src/engine/metadata-modules/skill/skill.module';
+import { TeamCommsModule } from 'src/engine/metadata-modules/team-comms/team-comms.module';
 import { ViewModule } from 'src/engine/metadata-modules/view/view.module';
 import { WebhookModule } from 'src/engine/metadata-modules/webhook/webhook.module';
 import { WorkspaceMetadataVersionModule } from 'src/engine/metadata-modules/workspace-metadata-version/workspace-metadata-version.module';
@@ -55,6 +56,7 @@ import { WorkspaceMetadataVersionModule } from 'src/engine/metadata-modules/work
     MessageChannelMetadataModule,
     CalendarChannelMetadataModule,
     MessageFolderMetadataModule,
+    TeamCommsModule,
   ],
   providers: [
     {
@@ -83,6 +85,7 @@ import { WorkspaceMetadataVersionModule } from 'src/engine/metadata-modules/work
     MessageChannelMetadataModule,
     CalendarChannelMetadataModule,
     MessageFolderMetadataModule,
+    TeamCommsModule,
   ],
 })
 export class MetadataEngineModule {}

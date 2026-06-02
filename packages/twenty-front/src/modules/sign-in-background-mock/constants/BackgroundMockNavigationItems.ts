@@ -1,6 +1,5 @@
 import {
   IconBuildingSkyscraper,
-  IconCalendarEvent,
   IconCheckbox,
   type IconComponent,
   IconFileText,
@@ -34,5 +33,4 @@ export const BACKGROUND_MOCK_WORKSPACE_ITEMS = [
   { label: 'Survey results', Icon: IconStar, color: 'yellow' },
   { label: 'Employment Histories', Icon: IconUserCircle, color: 'green' },
   { label: 'Pet Care Agreements', Icon: IconFileText, color: 'purple' },
-  { label: 'Star History', Icon: IconCalendarEvent, color: 'red' },
 ] satisfies BackgroundMockNavigationItem[];

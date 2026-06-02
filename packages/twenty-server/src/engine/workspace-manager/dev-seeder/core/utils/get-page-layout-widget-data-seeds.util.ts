@@ -595,33 +595,6 @@ export const getPageLayoutWidgetDataSeeds = (
       objectMetadataId: null,
       overrides: null,
     } satisfies SeederFlatPageLayoutWidget,
-
-    {
-      id: generateSeedId(
-        workspaceId,
-        PAGE_LAYOUT_WIDGET_SEEDS.DOCUMENTATION_IFRAME,
-      ),
-      pageLayoutTabId: generateSeedId(
-        workspaceId,
-        PAGE_LAYOUT_TAB_SEEDS.DOCUMENTATION,
-      ),
-      title: 'Twenty Star History',
-      type: WidgetType.IFRAME,
-      gridPosition: { row: 0, column: 0, rowSpan: 12, columnSpan: 12 },
-      position: {
-        layoutMode: PageLayoutTabLayoutMode.GRID,
-        row: 0,
-        column: 0,
-        rowSpan: 12,
-        columnSpan: 12,
-      },
-      configuration: {
-        configurationType: WidgetConfigurationType.IFRAME,
-        url: 'https://www.star-history.com/?repos=twentyhq%2Ftwenty&type=date&legend=top-left',
-      },
-      objectMetadataId: null,
-      overrides: null,
-    } satisfies SeederFlatPageLayoutWidget,
   ].filter(isDefined);
 
   const v2Widgets = getPageLayoutWidgetDataSeedsV2(
