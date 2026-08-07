@@ -129,7 +129,13 @@ export default defineConfig(({ command }) => {
       cssCodeSplit: false,
       minify: 'esbuild',
       sourcemap: false,
-      emptyOutDir: false,
+      // Without this, hashed chunks from earlier builds pile up in dist. After a
+      // large source change the entry files point at new hashes while the old
+      // chunks linger, and a partial/interleaved build can leave an entry
+      // referencing a chunk that was never written — wyw-in-js then fails the dev
+      // server with ENOENT on a chunk path. Safe to empty: build:individual owns
+      // dist/individual, runs after build, and empties that subdir itself.
+      emptyOutDir: true,
       outDir: './dist',
       reportCompressedSize: true,
       commonjsOptions: {
