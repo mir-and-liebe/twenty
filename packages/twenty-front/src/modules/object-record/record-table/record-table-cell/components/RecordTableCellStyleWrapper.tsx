@@ -1,8 +1,7 @@
-import { type DraggableProvidedDragHandleProps } from '@hello-pangea/dnd';
 import { cx } from '@linaria/core';
 import { styled } from '@linaria/react';
 import { type ReactNode, useContext } from 'react';
-import { ThemeContext } from 'twenty-ui-deprecated/theme-constants';
+import { ThemeContext } from 'twenty-ui/theme-constants';
 
 export const StyledCell = styled.div<{
   backgroundColor: string;
@@ -35,7 +34,7 @@ export const RecordTableCellStyleWrapper = ({
   hasRightBorder = true,
   hasBottomBorder = true,
   widthClassName,
-  ...dragHandleProps
+  ...divProps
 }: {
   className?: string;
   children?: ReactNode;
@@ -44,7 +43,7 @@ export const RecordTableCellStyleWrapper = ({
   hasRightBorder?: boolean;
   hasBottomBorder?: boolean;
   widthClassName: string;
-} & (Partial<DraggableProvidedDragHandleProps> | null)) => {
+} & React.ComponentProps<'div'>) => {
   const { theme } = useContext(ThemeContext);
 
   const tdBackgroundColor = isSelected
@@ -64,7 +63,7 @@ export const RecordTableCellStyleWrapper = ({
       hasRightBorder={hasRightBorder}
       hasBottomBorder={hasBottomBorder}
       // oxlint-disable-next-line react/jsx-props-no-spreading
-      {...dragHandleProps}
+      {...divProps}
       className={cx('table-cell', widthClassName)}
     >
       {children}

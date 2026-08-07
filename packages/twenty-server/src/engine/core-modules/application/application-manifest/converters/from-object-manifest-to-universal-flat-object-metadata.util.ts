@@ -1,4 +1,5 @@
 import { type ObjectManifest } from 'twenty-shared/application';
+import { ObjectOpenRecordIn } from 'twenty-shared/types';
 
 import { type UniversalFlatObjectMetadata } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-object-metadata.type';
 
@@ -19,9 +20,10 @@ export const fromObjectManifestToUniversalFlatObjectMetadata = ({
     labelSingular: objectManifest.labelSingular,
     labelPlural: objectManifest.labelPlural,
     color: null,
+    openRecordIn: objectManifest.openRecordIn ?? ObjectOpenRecordIn.USER_CHOICE,
     description: objectManifest.description ?? null,
     icon: objectManifest.icon ?? null,
-    standardOverrides: null,
+    overrides: null,
     targetTableName: 'DEPRECATED',
     isRemote: false,
     isActive: true,
@@ -35,6 +37,7 @@ export const fromObjectManifestToUniversalFlatObjectMetadata = ({
     isLabelSyncedWithName: false,
     fieldUniversalIdentifiers: [],
     indexMetadataUniversalIdentifiers: [],
+    searchFieldMetadataUniversalIdentifiers: [],
     objectPermissionUniversalIdentifiers: [],
     fieldPermissionUniversalIdentifiers: [],
     viewUniversalIdentifiers: [],

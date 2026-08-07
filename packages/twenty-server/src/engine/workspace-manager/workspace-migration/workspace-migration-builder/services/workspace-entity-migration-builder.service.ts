@@ -6,6 +6,9 @@ import { isDefined } from 'twenty-shared/utils';
 import { validate as uuidValidate, version as uuidVersion } from 'uuid';
 
 import { LoggerService } from 'src/engine/core-modules/logger/logger.service';
+import { WORKSPACE_MIGRATION_DURATION_MS_BUCKET_BOUNDARIES } from 'src/engine/core-modules/metrics/constants/workspace-migration-duration-ms-bucket-boundaries.constant';
+import { MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
+import { MetricsKeys } from 'src/engine/core-modules/metrics/types/metrics-keys.type';
 import {
   FlatEntityMapsException,
   FlatEntityMapsExceptionCode,
@@ -23,6 +26,7 @@ import { UniversalFlatEntityMaps } from 'src/engine/workspace-manager/workspace-
 import { addUniversalFlatEntityToUniversalFlatEntityAndRelatedEntityMapsThroughMutationOrThrow } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/utils/add-universal-flat-entity-to-universal-flat-entity-and-related-entity-maps-through-mutation-or-throw.util';
 import { deleteUniversalFlatEntityForeignKeyAggregators } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/utils/delete-universal-flat-entity-foreign-key-aggregators.util';
 import { deleteUniversalFlatEntityFromUniversalFlatEntityAndRelatedEntityMapsThroughMutationOrThrow } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/utils/delete-universal-flat-entity-from-universal-flat-entity-and-related-entity-maps-through-mutation-or-throw.util';
+import { deleteFlatEntityForeignKeyAggregators } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/utils/delete-flat-entity-foreign-key-aggregators.util';
 import { deleteUniversalFlatEntityFromUniversalFlatEntityMapsThroughMutationOrThrow } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/utils/delete-universal-flat-entity-from-universal-flat-entity-maps-through-mutation-or-throw.util';
 import { replaceUniversalFlatEntityInUniversalFlatEntityMapsThroughMutationOrThrow } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/utils/replace-universal-flat-entity-in-universal-flat-entity-maps-through-mutation-or-throw.util';
 import { resetUniversalFlatEntityForeignKeyAggregators } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/utils/reset-universal-flat-entity-foreign-key-aggregators.util';
@@ -55,6 +59,10 @@ export abstract class WorkspaceEntityMigrationBuilderService<
 > {
   @Inject(LoggerService)
   protected readonly logger: LoggerService;
+
+  @Inject(MetricsService)
+  protected readonly metricsService: MetricsService;
+
   private metadataName: T;
 
   constructor(metadataName: T) {
@@ -70,11 +78,17 @@ export abstract class WorkspaceEntityMigrationBuilderService<
     additionalCacheDataMaps,
     workspaceId,
   }: ValidateAndBuildArgs<T>): ValidateAndBuildReturnType<T> {
-    this.logger.time(`EntityBuilder ${this.metadataName}`, 'validateAndBuild');
-    this.logger.time(
+    this.logger.perfTime(
+      `EntityBuilder ${this.metadataName}`,
+      'validateAndBuild',
+    );
+    this.logger.perfTime(
       `EntityBuilder ${this.metadataName}`,
       'matrix computation',
     );
+
+    const validateAndBuildStart = performance.now();
+    const matrixComputationStart = performance.now();
 
     const fromFlatEntities = Object.values(
       fromFlatEntityMaps.byUniversalIdentifier,
@@ -94,11 +108,19 @@ export abstract class WorkspaceEntityMigrationBuilderService<
       buildOptions,
     });
 
-    this.logger.timeEnd(
+    this.logger.perfTimeEnd(
       `EntityBuilder ${this.metadataName}`,
       'matrix computation',
     );
-    this.logger.time(`EntityBuilder ${this.metadataName}`, 'entity processing');
+    this.logger.perfTime(
+      `EntityBuilder ${this.metadataName}`,
+      'entity processing',
+    );
+
+    this.recordBuildEntityPhaseMetric({
+      phase: 'matrix-computation',
+      startedAt: matrixComputationStart,
+    });
 
     const flatEntityMapsKey = getMetadataFlatEntityMapsKey(this.metadataName);
     const actionsResult = getMetadataEmptyWorkspaceMigrationActionRecord(
@@ -107,10 +129,12 @@ export abstract class WorkspaceEntityMigrationBuilderService<
     const allValidationResult: FailedFlatEntityValidateAndBuild<T>['errors'] =
       [];
 
-    this.logger.time(
+    this.logger.perfTime(
       `EntityBuilder ${this.metadataName}`,
       'deletion validation',
     );
+
+    const deletionValidationStart = performance.now();
 
     const remainingFlatEntityMapsToDelete = structuredClone(
       deletedFlatEntityMaps,
@@ -162,22 +186,125 @@ export abstract class WorkspaceEntityMigrationBuilderService<
         },
       );
 
+      const universalFlatEntityToDeletePayload =
+        deleteFlatEntityForeignKeyAggregators({
+          metadataName: this.metadataName,
+          universalFlatEntity: universalFlatEntityToDelete,
+        });
+
       actionsResult.delete.push(
         ...(Array.isArray(validationResult.action)
           ? validationResult.action
           : [validationResult.action]
         ).map((action) => ({
           ...action,
-          flatEntity: universalFlatEntityToDelete,
+          flatEntity: universalFlatEntityToDeletePayload,
         })),
       );
     }
 
-    this.logger.timeEnd(
+    this.logger.perfTimeEnd(
       `EntityBuilder ${this.metadataName}`,
       'deletion validation',
     );
-    this.logger.time(`EntityBuilder ${this.metadataName}`, 'update validation');
+    this.logger.perfTime(
+      `EntityBuilder ${this.metadataName}`,
+      'creation validation',
+    );
+
+    this.recordBuildEntityPhaseMetric({
+      phase: 'deletion-validation',
+      startedAt: deletionValidationStart,
+    });
+
+    const creationValidationStart = performance.now();
+
+    const remainingFlatEntityMapsToCreate = structuredClone(
+      createdFlatEntityMaps,
+    );
+
+    const sortedCreateUniversalIdentifiers =
+      topologicallySortUniversalFlatEntitiesForSelfReferentialFks({
+        metadataName: this.metadataName,
+        universalFlatEntityMaps: createdFlatEntityMaps,
+      });
+
+    for (const flatEntityToCreateUniversalIdentifier of sortedCreateUniversalIdentifiers) {
+      const rawUniversalflatEntityToCreate =
+        findFlatEntityByUniversalIdentifierOrThrow({
+          universalIdentifier: flatEntityToCreateUniversalIdentifier,
+          flatEntityMaps: createdFlatEntityMaps,
+        });
+
+      const universalFlatEntityToCreate =
+        resetUniversalFlatEntityForeignKeyAggregators({
+          metadataName: this.metadataName,
+          universalFlatEntity: rawUniversalflatEntityToCreate,
+        });
+
+      const universalIdentifierToDelete =
+        universalFlatEntityToCreate.universalIdentifier;
+
+      deleteUniversalFlatEntityFromUniversalFlatEntityMapsThroughMutationOrThrow(
+        {
+          universalIdentifierToDelete,
+          universalFlatEntityMapsToMutate: remainingFlatEntityMapsToCreate,
+        },
+      );
+
+      const validationResult = await this.innerValidateFlatEntityCreation({
+        additionalCacheDataMaps,
+        flatEntityToValidate: universalFlatEntityToCreate,
+        workspaceId,
+        optimisticFlatEntityMapsAndRelatedFlatEntityMaps,
+        remainingFlatEntityMapsToValidate: remainingFlatEntityMapsToCreate,
+        buildOptions,
+      });
+
+      if (validationResult.status === 'fail') {
+        allValidationResult.push(validationResult);
+        continue;
+      }
+
+      addUniversalFlatEntityToUniversalFlatEntityAndRelatedEntityMapsThroughMutationOrThrow(
+        {
+          universalFlatEntity: universalFlatEntityToCreate,
+          universalFlatEntityAndRelatedMapsToMutate:
+            optimisticFlatEntityMapsAndRelatedFlatEntityMaps,
+          metadataName: this.metadataName,
+        },
+      );
+
+      const formattedNewCreateAction: AllUniversalWorkspaceMigrationAction<
+        'create',
+        typeof this.metadataName
+      > = {
+        ...validationResult.action,
+        flatEntity: deleteUniversalFlatEntityForeignKeyAggregators({
+          metadataName: this.metadataName,
+          universalFlatEntity: validationResult.action
+            .flatEntity as MetadataFlatEntity<T>,
+        }),
+      };
+
+      actionsResult.create.push(formattedNewCreateAction);
+    }
+
+    this.logger.perfTimeEnd(
+      `EntityBuilder ${this.metadataName}`,
+      'creation validation',
+    );
+    this.logger.perfTime(
+      `EntityBuilder ${this.metadataName}`,
+      'update validation',
+    );
+
+    this.recordBuildEntityPhaseMetric({
+      phase: 'creation-validation',
+      startedAt: creationValidationStart,
+    });
+
+    const updateValidationStart = performance.now();
 
     for (const flatEntityToUpdateUniversalIdentifier in updatedFlatEntityMaps.byUniversalIdentifier) {
       const flatEntityUpdate =
@@ -257,104 +384,38 @@ export abstract class WorkspaceEntityMigrationBuilderService<
       );
     }
 
-    this.logger.timeEnd(
+    this.logger.perfTimeEnd(
       `EntityBuilder ${this.metadataName}`,
       'update validation',
     );
-
-    const remainingFlatEntityMapsToCreate = structuredClone(
-      createdFlatEntityMaps,
-    );
-
-    this.logger.time(
-      `EntityBuilder ${this.metadataName}`,
-      'creation validation',
-    );
-
-    const sortedCreateUniversalIdentifiers =
-      topologicallySortUniversalFlatEntitiesForSelfReferentialFks({
-        metadataName: this.metadataName,
-        universalFlatEntityMaps: createdFlatEntityMaps,
-      });
-
-    for (const flatEntityToCreateUniversalIdentifier of sortedCreateUniversalIdentifiers) {
-      const rawUniversalflatEntityToCreate =
-        findFlatEntityByUniversalIdentifierOrThrow({
-          universalIdentifier: flatEntityToCreateUniversalIdentifier,
-          flatEntityMaps: createdFlatEntityMaps,
-        });
-
-      const universalFlatEntityToCreate =
-        resetUniversalFlatEntityForeignKeyAggregators({
-          metadataName: this.metadataName,
-          universalFlatEntity: rawUniversalflatEntityToCreate,
-        });
-
-      const universalIdentifierToDelete =
-        universalFlatEntityToCreate.universalIdentifier;
-
-      deleteUniversalFlatEntityFromUniversalFlatEntityMapsThroughMutationOrThrow(
-        {
-          universalIdentifierToDelete,
-          universalFlatEntityMapsToMutate: remainingFlatEntityMapsToCreate,
-        },
-      );
-
-      const validationResult = await this.innerValidateFlatEntityCreation({
-        additionalCacheDataMaps,
-        flatEntityToValidate: universalFlatEntityToCreate,
-        workspaceId,
-        optimisticFlatEntityMapsAndRelatedFlatEntityMaps,
-        remainingFlatEntityMapsToValidate: remainingFlatEntityMapsToCreate,
-        buildOptions,
-      });
-
-      if (validationResult.status === 'fail') {
-        allValidationResult.push(validationResult);
-        continue;
-      }
-
-      addUniversalFlatEntityToUniversalFlatEntityAndRelatedEntityMapsThroughMutationOrThrow(
-        {
-          universalFlatEntity: universalFlatEntityToCreate,
-          universalFlatEntityAndRelatedMapsToMutate:
-            optimisticFlatEntityMapsAndRelatedFlatEntityMaps,
-          metadataName: this.metadataName,
-        },
-      );
-
-      const formattedNewCreateAction: AllUniversalWorkspaceMigrationAction<
-        'create',
-        typeof this.metadataName
-      > = {
-        ...validationResult.action,
-        flatEntity: deleteUniversalFlatEntityForeignKeyAggregators({
-          metadataName: this.metadataName,
-          universalFlatEntity: validationResult.action
-            .flatEntity as MetadataFlatEntity<T>,
-        }),
-      };
-
-      actionsResult.create.push(formattedNewCreateAction);
-    }
-
-    this.logger.timeEnd(
-      `EntityBuilder ${this.metadataName}`,
-      'creation validation',
-    );
-    this.logger.timeEnd(
+    this.logger.perfTimeEnd(
       `EntityBuilder ${this.metadataName}`,
       'entity processing',
     );
 
+    this.recordBuildEntityPhaseMetric({
+      phase: 'update-validation',
+      startedAt: updateValidationStart,
+    });
+
     if (allValidationResult.length > 0) {
+      this.recordBuildEntityDurationMetric({
+        status: 'fail',
+        startedAt: validateAndBuildStart,
+      });
+
       return {
         status: 'fail',
         errors: allValidationResult,
       };
     }
 
-    this.logger.timeEnd(
+    this.recordBuildEntityDurationMetric({
+      status: 'success',
+      startedAt: validateAndBuildStart,
+    });
+
+    this.logger.perfTimeEnd(
       `EntityBuilder ${this.metadataName}`,
       'validateAndBuild',
     );
@@ -363,6 +424,42 @@ export abstract class WorkspaceEntityMigrationBuilderService<
       status: 'success',
       actions: actionsResult,
     };
+  }
+
+  private recordBuildEntityDurationMetric({
+    status,
+    startedAt,
+  }: {
+    status: 'success' | 'fail';
+    startedAt: number;
+  }): void {
+    this.metricsService.recordHistogram({
+      key: MetricsKeys.WorkspaceMigrationBuildEntityDurationMs,
+      value: performance.now() - startedAt,
+      unit: 'ms',
+      attributes: { metadataName: this.metadataName, status },
+      bucketBoundaries: WORKSPACE_MIGRATION_DURATION_MS_BUCKET_BOUNDARIES,
+    });
+  }
+
+  private recordBuildEntityPhaseMetric({
+    phase,
+    startedAt,
+  }: {
+    phase:
+      | 'matrix-computation'
+      | 'deletion-validation'
+      | 'creation-validation'
+      | 'update-validation';
+    startedAt: number;
+  }): void {
+    this.metricsService.recordHistogram({
+      key: MetricsKeys.WorkspaceMigrationBuildEntityPhaseDurationMs,
+      value: performance.now() - startedAt,
+      unit: 'ms',
+      attributes: { metadataName: this.metadataName, phase },
+      bucketBoundaries: WORKSPACE_MIGRATION_DURATION_MS_BUCKET_BOUNDARIES,
+    });
   }
 
   private validateUniversalIdentifier({
@@ -376,6 +473,16 @@ export abstract class WorkspaceEntityMigrationBuilderService<
         {
           code: FlatEntityMapsExceptionCode.ENTITY_MALFORMED,
           message: `Invalid universalIdentifier: "${universalIdentifier}" is not a valid UUID, uuid version should be greater than 4`,
+          value: universalIdentifier,
+        },
+      ];
+    }
+
+    if (universalIdentifier !== universalIdentifier.toLowerCase()) {
+      return [
+        {
+          code: FlatEntityMapsExceptionCode.ENTITY_MALFORMED,
+          message: `Invalid universalIdentifier: "${universalIdentifier}" must be lowercase`,
           value: universalIdentifier,
         },
       ];

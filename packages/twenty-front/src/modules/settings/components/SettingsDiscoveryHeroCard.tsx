@@ -8,19 +8,16 @@ import { useIsFeatureEnabled } from '@/workspace/hooks/useIsFeatureEnabled';
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
 import { type ReactNode, useContext } from 'react';
-import { Card } from 'twenty-ui-deprecated/layout';
-import {
-  ThemeContext,
-  themeCssVariables,
-} from 'twenty-ui-deprecated/theme-constants';
+import { Card } from 'twenty-ui/surfaces';
+import { ThemeContext, themeCssVariables } from 'twenty-ui/theme-constants';
 import { FeatureFlagKey } from '~/generated-metadata/graphql';
 
-const COVER_HEIGHT = 150;
+const DEFAULT_COVER_HEIGHT = 150;
 
-const StyledCoverContainer = styled.div`
+const StyledCoverContainer = styled.div<{ coverHeight: number }>`
   background: ${themeCssVariables.background.secondary};
   box-sizing: border-box;
-  height: ${COVER_HEIGHT}px;
+  height: ${({ coverHeight }) => coverHeight}px;
   overflow: hidden;
   position: relative;
 `;
@@ -53,6 +50,7 @@ type SettingsDiscoveryHeroCardProps = {
   darkSrc: string;
   instanceIdPrefix: string;
   tabs: SettingsCustomizeVideoModalTab[];
+  coverHeight?: number;
   footer?: ReactNode;
   playButtonAriaLabel?: string;
 };
@@ -62,6 +60,7 @@ export const SettingsDiscoveryHeroCard = ({
   darkSrc,
   instanceIdPrefix,
   tabs,
+  coverHeight = DEFAULT_COVER_HEIGHT,
   footer,
   playButtonAriaLabel,
 }: SettingsDiscoveryHeroCardProps) => {
@@ -81,7 +80,7 @@ export const SettingsDiscoveryHeroCard = ({
   return (
     <>
       <Card rounded>
-        <StyledCoverContainer>
+        <StyledCoverContainer coverHeight={coverHeight}>
           <StyledImage src={src} alt="" aria-hidden />
           {shouldDisplayVideo && (
             <StyledOverlay>

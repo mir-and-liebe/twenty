@@ -1,4 +1,4 @@
-import { FormFieldInputContainer } from '@/object-record/record-field/ui/form-types/components/FormFieldInputContainer';
+import { FormFieldInputContainer } from '@/ui/input/components/FormFieldInputContainer';
 import { FormFieldInputInnerContainer } from '@/object-record/record-field/ui/form-types/components/FormFieldInputInnerContainer';
 import { FormFieldInputRowContainer } from '@/object-record/record-field/ui/form-types/components/FormFieldInputRowContainer';
 import { VariableChipStandalone } from '@/object-record/record-field/ui/form-types/components/VariableChipStandalone';
@@ -17,7 +17,7 @@ import { OverlayContainer } from '@/ui/layout/overlay/components/OverlayContaine
 import { useHotkeysOnFocusedElement } from '@/ui/utilities/hotkey/hooks/useHotkeysOnFocusedElement';
 import { useListenClickOutside } from '@/ui/utilities/pointer-event/hooks/useListenClickOutside';
 
-import { isStandaloneVariableString } from '@/workflow/utils/isStandaloneVariableString';
+import { isStandaloneVariableString } from 'twenty-shared/workflow';
 import {
   FloatingPortal,
   autoUpdate,
@@ -30,8 +30,8 @@ import { useId, useRef, useState } from 'react';
 import { Temporal } from 'temporal-polyfill';
 import { Key } from 'ts-key-enum';
 import { isDefined } from 'twenty-shared/utils';
-import { themeCssVariables } from 'twenty-ui-deprecated/theme-constants';
-import { type Nullable } from 'twenty-ui-deprecated/utilities';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
+import { type Nullable } from 'twenty-ui/utilities';
 
 const FORM_DATE_FIELD_PICKER_CLICK_OUTSIDE_ID =
   'form-date-field-picker-floating';

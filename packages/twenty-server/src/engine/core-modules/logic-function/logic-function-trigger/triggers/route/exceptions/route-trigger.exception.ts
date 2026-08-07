@@ -6,14 +6,17 @@ import { CustomException } from 'src/utils/custom-exception';
 
 export enum RouteTriggerExceptionCode {
   WORKSPACE_NOT_FOUND = 'WORKSPACE_NOT_FOUND',
+  WORKSPACE_SUSPENDED = 'WORKSPACE_SUSPENDED',
   ROUTE_NOT_FOUND = 'ROUTE_NOT_FOUND',
   TRIGGER_NOT_FOUND = 'TRIGGER_NOT_FOUND',
   LOGIC_FUNCTION_NOT_FOUND = 'LOGIC_FUNCTION_NOT_FOUND',
   ROUTE_ALREADY_EXIST = 'ROUTE_ALREADY_EXIST',
   ROUTE_PATH_ALREADY_EXIST = 'ROUTE_PATH_ALREADY_EXIST',
   FORBIDDEN_EXCEPTION = 'FORBIDDEN_EXCEPTION',
-  LOGIC_FUNCTION_EXECUTION_ERROR = 'LOGIC_FUNCTION_EXECUTION_ERROR',
+  ROUTE_TRIGGER_USER_UNCAUGHT_ERROR = 'ROUTE_TRIGGER_USER_UNCAUGHT_ERROR',
+  ROUTE_TRIGGER_PLATFORM_ERROR = 'ROUTE_TRIGGER_PLATFORM_ERROR',
   RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
+  LEGACY_ROUTE_DEPRECATED = 'LEGACY_ROUTE_DEPRECATED',
 }
 
 const getRouteTriggerExceptionUserFriendlyMessage = (
@@ -22,6 +25,8 @@ const getRouteTriggerExceptionUserFriendlyMessage = (
   switch (code) {
     case RouteTriggerExceptionCode.WORKSPACE_NOT_FOUND:
       return msg`Workspace not found.`;
+    case RouteTriggerExceptionCode.WORKSPACE_SUSPENDED:
+      return msg`Workspace is suspended.`;
     case RouteTriggerExceptionCode.ROUTE_NOT_FOUND:
       return msg`Route not found.`;
     case RouteTriggerExceptionCode.TRIGGER_NOT_FOUND:
@@ -34,10 +39,14 @@ const getRouteTriggerExceptionUserFriendlyMessage = (
       return msg`Route path already exists.`;
     case RouteTriggerExceptionCode.FORBIDDEN_EXCEPTION:
       return msg`You do not have permission to perform this action.`;
-    case RouteTriggerExceptionCode.LOGIC_FUNCTION_EXECUTION_ERROR:
+    case RouteTriggerExceptionCode.ROUTE_TRIGGER_USER_UNCAUGHT_ERROR:
       return msg`Logic function execution failed.`;
+    case RouteTriggerExceptionCode.ROUTE_TRIGGER_PLATFORM_ERROR:
+      return msg`An unexpected error occurred while executing the logic function.`;
     case RouteTriggerExceptionCode.RATE_LIMIT_EXCEEDED:
       return msg`Too many requests. Please try again later.`;
+    case RouteTriggerExceptionCode.LEGACY_ROUTE_DEPRECATED:
+      return msg`This endpoint is no longer available on /s/. Use the dedicated public domain URL instead.`;
     default:
       assertUnreachable(code);
   }

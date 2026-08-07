@@ -22,7 +22,7 @@ import { WidgetComponentInstanceContext } from '@/page-layout/widgets/states/con
 import { LayoutRenderingProvider } from '@/ui/layout/contexts/LayoutRenderingContext';
 import { jotaiStore } from '@/ui/utilities/state/jotai/jotaiStore';
 import { CoreObjectNameSingular } from 'twenty-shared/types';
-import { ComponentDecorator } from 'twenty-ui-deprecated/testing';
+import { ComponentDecorator } from 'twenty-ui/testing';
 import {
   FieldDisplayMode,
   PageLayoutTabLayoutMode,
@@ -400,6 +400,7 @@ const renderFieldWidgetStory = ({
               <PageLayoutContentProvider
                 value={{
                   layoutMode: PageLayoutTabLayoutMode.VERTICAL_LIST,
+                  presentation: 'stack',
                   tabId: 'fields',
                 }}
               >

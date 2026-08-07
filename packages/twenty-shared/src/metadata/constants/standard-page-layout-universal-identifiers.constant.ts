@@ -426,6 +426,33 @@ export const STANDARD_PAGE_LAYOUT_UNIVERSAL_IDENTIFIERS = {
       },
     },
   },
+  calendarEventRecordPage: {
+    universalIdentifier: 'b9b10e40-9ce2-4704-8ac6-c6e92e2563c1',
+    tabs: {
+      home: {
+        universalIdentifier: 'c80a0407-25f5-438b-8c32-1ce9cde95657',
+        widgets: {
+          fields: {
+            universalIdentifier: 'fea5c1c2-0c1d-4d2e-a14c-a10108b0db0f',
+          },
+          participants: {
+            universalIdentifier: '6faea537-02fa-4993-957c-f2e1654986bd',
+          },
+          callRecordings: {
+            universalIdentifier: 'f473b435-e2d4-4928-8d90-1db0094389f7',
+          },
+        },
+      },
+      timeline: {
+        universalIdentifier: '9cb35d6d-932d-49bc-b303-593116ca5343',
+        widgets: {
+          timeline: {
+            universalIdentifier: '8273e2c4-cc17-4d3e-ba08-5bac612b5d44',
+          },
+        },
+      },
+    },
+  },
   calendarEventParticipantRecordPage: {
     universalIdentifier: '20202020-a10c-400c-800c-ca1e0a0c0001',
     tabs: {
@@ -584,11 +611,22 @@ export const STANDARD_PAGE_LAYOUT_UNIVERSAL_IDENTIFIERS = {
   messageCampaignRecordPage: {
     universalIdentifier: '8704b091-94bd-4f8f-82b1-e2f3eab92217',
     tabs: {
+      composer: {
+        universalIdentifier: '5f21c19d-6c3e-4b8a-9d47-1e8f02a63b71',
+        widgets: {
+          messageCampaign: {
+            universalIdentifier: '9c74d8e2-0b5f-4a19-8630-57d2ba14ce92',
+          },
+        },
+      },
       home: {
         universalIdentifier: 'f16785cd-a5b7-4ec1-8f20-ff8b80fb94b9',
         widgets: {
           fields: {
             universalIdentifier: '886296e0-a5b6-4054-b450-ad624180c2ef',
+          },
+          details: {
+            universalIdentifier: 'ce2f82cc-9340-45a2-90a0-c34207e8e3b0',
           },
           messages: {
             universalIdentifier: 'a33b43f4-72a1-476d-9372-30e82f450377',

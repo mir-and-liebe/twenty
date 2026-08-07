@@ -9,7 +9,7 @@ import { useTargetRecord } from '@/ui/layout/contexts/useTargetRecord';
 import { ScrollWrapper } from '@/ui/utilities/scroll/components/ScrollWrapper';
 import { styled } from '@linaria/react';
 import { PageLayoutType } from '~/generated-metadata/graphql';
-import { themeCssVariables } from 'twenty-ui-deprecated/theme-constants';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
 
 const StyledContainer = styled.div`
   background: ${themeCssVariables.background.secondary};
@@ -52,10 +52,13 @@ export const PageLayoutLeftPanel = ({
         isInSidePanel={isInSidePanel}
       />
 
+      {/* The pinned left panel is always a column of cards, even with a single
+          widget: solo presentation is a main-tab-area concept. */}
       <PageLayoutContentProvider
         value={{
           tabId: pinnedLeftTabId,
           layoutMode,
+          presentation: 'stack',
         }}
       >
         <ScrollWrapper

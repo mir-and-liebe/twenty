@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { type ActorMetadata } from 'twenty-shared/types';
+import { type ActorMetadata, FieldActorSource } from 'twenty-shared/types';
 
 import { buildCreatedByFromFullNameMetadata } from 'src/engine/core-modules/actor/utils/build-created-by-from-full-name-metadata.util';
 import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
@@ -15,6 +15,7 @@ import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system
 export type UserContext = {
   firstName: string;
   lastName: string;
+  jobTitle: string | null;
   locale: string;
   timezone: string | null;
 };
@@ -93,11 +94,13 @@ export class AgentActorContextService {
     const actorContext = buildCreatedByFromFullNameMetadata({
       fullNameMetadata: workspaceMember.name,
       workspaceMemberId: workspaceMember.id,
+      source: FieldActorSource.AGENT,
     });
 
     const userContext: UserContext = {
       firstName: workspaceMember.name?.firstName ?? '',
       lastName: workspaceMember.name?.lastName ?? '',
+      jobTitle: workspaceMember.jobTitle,
       locale: userWorkspace.locale,
       timezone: workspaceMember.timeZone ?? null,
     };

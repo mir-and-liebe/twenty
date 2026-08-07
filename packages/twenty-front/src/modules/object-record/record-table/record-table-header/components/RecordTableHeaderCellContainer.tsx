@@ -1,6 +1,6 @@
 import { RECORD_TABLE_ROW_HEIGHT } from '@/object-record/record-table/constants/RecordTableRowHeight';
 import { styled } from '@linaria/react';
-import { themeCssVariables } from 'twenty-ui-deprecated/theme-constants';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
 
 const StyledHeaderCell = styled.div<{
   zIndex?: number;
@@ -28,11 +28,13 @@ const StyledHeaderCell = styled.div<{
 
   text-align: left;
 
-  &:hover {
-    background: ${({ isResizing, isReadOnly }) =>
-      isReadOnly || isResizing
-        ? themeCssVariables.background.primary
-        : themeCssVariables.background.secondary};
+  @media (hover: hover) {
+    &:hover {
+      background: ${({ isResizing, isReadOnly }) =>
+        isReadOnly || isResizing
+          ? themeCssVariables.background.primary
+          : themeCssVariables.background.secondary};
+    }
   }
 
   &:active {

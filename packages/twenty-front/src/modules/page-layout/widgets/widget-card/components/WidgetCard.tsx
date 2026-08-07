@@ -1,6 +1,6 @@
 import { styled } from '@linaria/react';
 import { isDefined } from 'twenty-shared/utils';
-import { themeCssVariables } from 'twenty-ui-deprecated/theme-constants';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
 import { type WidgetCardVariant } from '~/modules/page-layout/widgets/types/WidgetCardVariant';
 
 type WidgetCardStyledProps = {
@@ -116,7 +116,7 @@ const StyledWidgetCard = styled.div<WidgetCardStyledProps>`
   &:hover {
     // border-color shorthand must precede border-bottom-color longhand for correct CSS cascade
     border-color: ${(props) => {
-      if (props.variant === 'canvas') {
+      if (props.variant === 'solo') {
         return computeBorderColor(props);
       }
       if (
@@ -131,7 +131,7 @@ const StyledWidgetCard = styled.div<WidgetCardStyledProps>`
     }};
 
     border-bottom-color: ${(props) => {
-      if (props.variant === 'canvas') {
+      if (props.variant === 'solo') {
         return computeBorderColor(props);
       }
 

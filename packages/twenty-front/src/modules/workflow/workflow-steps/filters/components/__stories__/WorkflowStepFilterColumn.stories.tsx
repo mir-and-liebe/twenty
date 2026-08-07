@@ -7,11 +7,12 @@ import {
   StepLogicalOperator,
   ViewFilterOperand,
 } from 'twenty-shared/types';
-import { ComponentDecorator } from 'twenty-ui-deprecated/testing';
+import { ComponentDecorator } from 'twenty-ui/testing';
 import { WorkflowStepActionDrawerDecorator } from '~/testing/decorators/WorkflowStepActionDrawerDecorator';
 import { WorkflowStepDecorator } from '~/testing/decorators/WorkflowStepDecorator';
 import { WorkspaceDecorator } from '~/testing/decorators/WorkspaceDecorator';
 import { graphqlMocks } from '~/testing/graphqlMocks';
+import { MemoryRouterDecorator } from '~/testing/decorators/MemoryRouterDecorator';
 
 const STEP_FILTER_GROUP: StepFilterGroup = {
   id: 'filter-group-1',
@@ -40,6 +41,7 @@ const meta: Meta<typeof WorkflowStepFilterColumn> = {
     stepFilterIndex: 0,
   },
   decorators: [
+    MemoryRouterDecorator,
     WorkflowStepActionDrawerDecorator,
     WorkflowStepDecorator,
     ComponentDecorator,

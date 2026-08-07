@@ -1,4 +1,5 @@
 import { STANDARD_OBJECTS } from 'twenty-shared/metadata';
+import { ObjectOpenRecordIn } from 'twenty-shared/types';
 import { TWENTY_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER } from 'twenty-shared/application';
 
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
@@ -19,6 +20,7 @@ export type CreateStandardObjectContext<O extends AllStandardObjectName> = {
   isAuditLogged?: boolean;
   isUIEditable?: boolean;
   isUICreatable?: boolean;
+  openRecordIn?: ObjectOpenRecordIn;
   shortcut?: string | null;
   duplicateCriteria?: string[][] | null;
   labelIdentifierFieldMetadataName: AllStandardObjectFieldName<O>;
@@ -48,6 +50,7 @@ export const createStandardObjectFlatMetadata = <
     isAuditLogged = true,
     isUIEditable = true,
     isUICreatable = true,
+    openRecordIn = ObjectOpenRecordIn.USER_CHOICE,
     shortcut = null,
     duplicateCriteria = null,
     labelIdentifierFieldMetadataName,
@@ -90,8 +93,9 @@ export const createStandardObjectFlatMetadata = <
     isAuditLogged,
     isUIEditable,
     isUICreatable,
+    openRecordIn,
     isLabelSyncedWithName: false,
-    standardOverrides: null,
+    overrides: null,
     duplicateCriteria,
     shortcut,
     labelIdentifierFieldMetadataId:
@@ -106,6 +110,7 @@ export const createStandardObjectFlatMetadata = <
     targetTableName: 'DEPRECATED',
     fieldIds: [],
     indexMetadataIds: [],
+    searchFieldMetadataIds: [],
     objectPermissionIds: [],
     fieldPermissionIds: [],
     viewIds: [],
@@ -119,6 +124,7 @@ export const createStandardObjectFlatMetadata = <
     fieldPermissionUniversalIdentifiers: [],
     viewUniversalIdentifiers: [],
     indexMetadataUniversalIdentifiers: [],
+    searchFieldMetadataUniversalIdentifiers: [],
     labelIdentifierFieldMetadataUniversalIdentifier,
     imageIdentifierFieldMetadataUniversalIdentifier,
   };

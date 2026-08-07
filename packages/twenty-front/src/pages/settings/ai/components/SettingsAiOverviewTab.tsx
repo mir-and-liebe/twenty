@@ -1,5 +1,6 @@
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
-import { FormAdvancedTextFieldInput } from '@/object-record/record-field/ui/form-types/components/FormAdvancedTextFieldInput';
+import { FormAdvancedTextFieldInput } from '@/advanced-text-editor/components/FormAdvancedTextFieldInput';
+import { AI_INSTRUCTIONS_EDITOR_PROFILE } from '@/ai/constants/AiInstructionsEditorProfile';
 import { SettingsCard } from '@/settings/components/SettingsCard';
 import { SettingsStatsGrid } from '@/settings/components/SettingsStatsGrid';
 import { useSnackBar } from '@/ui/feedback/snack-bar-manager/hooks/useSnackBar';
@@ -10,20 +11,17 @@ import { styled } from '@linaria/react';
 import { t } from '@lingui/core/macro';
 import { Fragment, useContext, useState } from 'react';
 import {
-  H2Title,
   IconMessage,
-  IconRobot,
+  IconSparkle2,
   IconSparkles,
   IconTool,
-} from 'twenty-ui-deprecated/display';
-import { Section } from 'twenty-ui-deprecated/layout';
-import { UndecoratedLink } from 'twenty-ui-deprecated/navigation';
+} from 'twenty-ui/icon';
+import { H2Title } from 'twenty-ui/typography';
+import { Section } from 'twenty-ui/layout';
+import { UndecoratedLink } from 'twenty-ui/navigation';
 import { SettingsPath } from 'twenty-shared/types';
 import { getSettingsPath } from 'twenty-shared/utils';
-import {
-  ThemeContext,
-  themeCssVariables,
-} from 'twenty-ui-deprecated/theme-constants';
+import { ThemeContext, themeCssVariables } from 'twenty-ui/theme-constants';
 import { useDebouncedCallback } from 'use-debounce';
 import {
   FindWorkspaceAiStatsDocument,
@@ -124,7 +122,7 @@ export const SettingsAiOverviewTab = () => {
         />
         <UndecoratedLink to={MCP_DEEP_LINK}>
           <SettingsCard
-            Icon={<IconRobot size={theme.icon.size.md} />}
+            Icon={<IconSparkle2 size={theme.icon.size.md} />}
             title={t`Set up MCP`}
           />
         </UndecoratedLink>
@@ -140,7 +138,7 @@ export const SettingsAiOverviewTab = () => {
             key={originalInstructions}
             readonly={false}
             defaultValue={workspaceInstructions}
-            contentType="markdown"
+            profile={AI_INSTRUCTIONS_EDITOR_PROFILE}
             onChange={(value) => {
               setWorkspaceInstructions(value);
               autoSave(value);
@@ -152,7 +150,6 @@ export const SettingsAiOverviewTab = () => {
             ]}
             placeholder={t`E.g., "We are a B2B SaaS company. Always use formal language..."`}
             minHeight={150}
-            maxWidth={700}
           />
         </StyledInstructionsContainer>
       </Section>

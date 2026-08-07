@@ -165,6 +165,9 @@ export class Billing {
   @Field(() => String, { nullable: true })
   billingUrl?: string;
 
+  @Field(() => String, { nullable: true })
+  stripePublishableKey?: string;
+
   @Field(() => [BillingTrialPeriodDTO])
   trialPeriods: BillingTrialPeriodDTO[];
 }
@@ -203,6 +206,16 @@ export class Captcha {
 export class ApiConfig {
   @Field(() => Number, { nullable: false })
   mutationMaximumAffectedRecords: number;
+}
+
+export class OnboardingConfig {
+  importContactsCreditsReward: number;
+
+  inviteTeamCreditsRewardPerUser: number;
+
+  upgradeCreditsReward: number;
+
+  installAppsCreditsRewardPerApp: number;
 }
 
 @ObjectType()
@@ -264,8 +277,14 @@ export class ClientConfig {
   @Field(() => String, { nullable: true })
   defaultSubdomain: string;
 
+  @Field(() => Number)
+  subdomainMinLength: number;
+
   @Field(() => String)
   frontDomain: string;
+
+  @Field(() => String, { nullable: true })
+  publicFunctionDomain: string | null;
 
   @Field(() => Boolean)
   analyticsEnabled: boolean;
@@ -285,11 +304,16 @@ export class ClientConfig {
   @Field(() => ApiConfig)
   api: ApiConfig;
 
+  onboarding: OnboardingConfig | null;
+
   @Field(() => Boolean)
   canManageFeatureFlags: boolean;
 
   @Field(() => [PublicFeatureFlag])
   publicFeatureFlags: PublicFeatureFlag[];
+
+  @Field(() => Boolean)
+  isCookieSessionEnabled: boolean;
 
   @Field(() => Boolean)
   isMicrosoftMessagingEnabled: boolean;
@@ -319,6 +343,12 @@ export class ClientConfig {
   calendarBookingPageId?: string;
 
   @Field(() => Boolean)
+  isBookCallOnboardingStepEnabled: boolean;
+
+  @Field(() => Boolean)
+  isCompanyEnrichmentEnabled: boolean;
+
+  @Field(() => Boolean)
   isCloudflareIntegrationEnabled: boolean;
 
   @Field(() => Boolean)
@@ -326,6 +356,12 @@ export class ClientConfig {
 
   @Field(() => Boolean)
   isWorkspaceSchemaDDLLocked: boolean;
+
+  @Field(() => Boolean)
+  isOnboardingAiChatEnabled: boolean;
+
+  @Field(() => String)
+  enterpriseInstanceType: string;
 
   @Field(() => ClientConfigMaintenanceMode, { nullable: true })
   maintenance?: ClientConfigMaintenanceMode;

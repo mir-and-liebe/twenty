@@ -1,6 +1,6 @@
 import { useEnterLayoutCustomizationMode } from '@/layout-customization/hooks/useEnterLayoutCustomizationMode';
 import { SettingsDiscoveryHeroCard } from '@/settings/components/SettingsDiscoveryHeroCard';
-import { SettingsOptionCardContentButton } from '@/settings/components/SettingsOptions/SettingsOptionCardContentButton';
+import { SettingsDiscoveryHeroCardFooter } from '@/settings/components/SettingsDiscoveryHeroCardFooter';
 import { SettingsPageContainer } from '@/settings/components/SettingsPageContainer';
 import { SettingsLayoutItemsStats } from '@/settings/layout/components/SettingsLayoutItemsStats';
 import { SettingsPageLayout } from '@/settings/components/layout/SettingsPageLayout';
@@ -9,16 +9,16 @@ import { useNavigate } from 'react-router-dom';
 import { AppPath, SettingsPath } from 'twenty-shared/types';
 import { getSettingsPath } from 'twenty-shared/utils';
 import {
-  H2Title,
   IconAppWindow,
   IconCommand,
   IconLayoutDashboard,
   IconLayoutSidebarLeftExpand,
   IconPencil,
   IconTable,
-} from 'twenty-ui-deprecated/display';
-import { Button } from 'twenty-ui-deprecated/input';
-import { Section } from 'twenty-ui-deprecated/layout';
+} from 'twenty-ui/icon';
+import { H2Title } from 'twenty-ui/typography';
+import { Button } from 'twenty-ui/input';
+import { Section } from 'twenty-ui/layout';
 import coverDark from '~/pages/settings/layout/assets/cover-dark.png';
 import coverLight from '~/pages/settings/layout/assets/cover-light.png';
 
@@ -88,11 +88,11 @@ export const SettingsLayout = () => {
             tabs={heroTabs}
             playButtonAriaLabel={t`Watch customization demo`}
             footer={
-              <SettingsOptionCardContentButton
+              <SettingsDiscoveryHeroCardFooter
                 Icon={IconLayoutDashboard}
                 title={t`Customize layout`}
                 description={t`Customize how your workspace looks.`}
-                Button={
+                action={
                   <Button
                     title={t`Customize`}
                     variant="primary"

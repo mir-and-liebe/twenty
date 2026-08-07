@@ -1,15 +1,19 @@
 import { Injectable } from '@nestjs/common';
 
 import { type ToolSet } from 'ai';
+import { FIELD_TYPE_DEFAULT_ICONS } from 'twenty-shared/constants';
 import { FieldMetadataType, RelationType } from 'twenty-shared/types';
 import { z } from 'zod';
 
+import { METADATA_TOOL_EXCLUDED_FIELD_NAMES } from 'src/engine/core-modules/tool-provider/constants/metadata-tool-excluded-field-names.constant';
 import { compactMetadataOutput } from 'src/engine/core-modules/tool-provider/utils/compact-metadata-output.util';
 import { formatValidationErrors } from 'src/engine/core-modules/tool-provider/utils/format-validation-errors.util';
+import { normalizeIconName } from 'src/engine/core-modules/tool-provider/utils/normalize-icon-name.util';
 import { FieldMetadataService } from 'src/engine/metadata-modules/field-metadata/services/field-metadata.service';
+import { WorkspaceManyOrAllFlatEntityMapsCacheService } from 'src/engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.service';
+import { getObjectMetadataIdByName } from 'src/engine/metadata-modules/flat-object-metadata/utils/get-object-metadata-id-by-name.util';
 import { WorkspaceMigrationBuilderException } from 'src/engine/workspace-manager/workspace-migration/exceptions/workspace-migration-builder-exception';
-
-const EXCLUDED_FIELD_NAMES = new Set(['searchVector', 'position', 'updatedBy']);
+import { isDefined } from 'twenty-shared/utils';
 
 const FIELD_STRIP_WHEN_NULLISH = [
   'options',
@@ -26,16 +30,14 @@ const FIELD_STRIP_WHEN_FALSE = ['isLabelSyncedWithName'];
 const FIELD_STRIP_WHEN_TRUE = ['isUIEditable'];
 
 const GetFieldMetadataInputSchema = z.object({
-  id: z
+  id: z.uuid().optional().describe('Field ID. Returns one field if set.'),
+  objectMetadataId: z.uuid().optional().describe('Filter by object ID.'),
+  objectName: z
     .string()
-    .uuid()
     .optional()
-    .describe('Field ID. Returns one field if set.'),
-  objectMetadataId: z
-    .string()
-    .uuid()
-    .optional()
-    .describe('Filter by object ID.'),
+    .describe(
+      'Filter by object name, singular or plural (e.g. "opportunity" or "opportunities"). Convenient alternative to objectMetadataId so you do not need to resolve the object id first.',
+    ),
   includeFullSystemFields: z
     .boolean()
     .default(false)
@@ -57,7 +59,12 @@ const CreateFieldMetadataInputSchema = z.object({
   name: z.string().describe('Field name (camelCase)'),
   label: z.string().describe('Display label'),
   description: z.string().optional().describe('Description'),
-  icon: z.string().optional().describe('Icon name'),
+  icon: z
+    .string()
+    .optional()
+    .describe(
+      'Tabler icon name, PascalCase with "Icon" prefix (e.g. IconCurrencyDollar, IconCalendarTime, IconPaw). Set one matching the field meaning; falls back to a type-based default.',
+    ),
   isNullable: z.boolean().optional().describe('Nullable'),
   isUnique: z.boolean().optional().describe('Unique constraint'),
   defaultValue: z.unknown().optional().describe('Default value'),
@@ -79,7 +86,10 @@ const UpdateFieldMetadataInputSchema = z.object({
   name: z.string().optional().describe('Field name'),
   label: z.string().optional().describe('Display label'),
   description: z.string().optional().describe('Description'),
-  icon: z.string().optional().describe('Icon name'),
+  icon: z
+    .string()
+    .optional()
+    .describe('Tabler icon name (e.g. IconCurrencyDollar)'),
   isActive: z.boolean().optional().describe('Active state'),
   isNullable: z.boolean().optional().describe('Nullable'),
   isUnique: z.boolean().optional().describe('Unique constraint'),
@@ -120,11 +130,18 @@ const CreateManyRelationFieldsInputSchema = z.object({
         name: z.string().describe('Field name (camelCase)'),
         label: z.string().describe('Display label'),
         description: z.string().optional().describe('Description'),
-        icon: z.string().optional().describe('Icon name'),
+        icon: z
+          .string()
+          .optional()
+          .describe('Tabler icon name for the relation field (e.g. IconUsers)'),
         type: z.nativeEnum(RelationType).describe('MANY_TO_ONE or ONE_TO_MANY'),
         targetObjectMetadataId: z.string().uuid().describe('Target object ID'),
         targetFieldLabel: z.string().describe('Inverse field label'),
-        targetFieldIcon: z.string().describe('Inverse field icon'),
+        targetFieldIcon: z
+          .string()
+          .describe(
+            'Inverse field Tabler icon name (e.g. IconBuildingSkyscraper)',
+          ),
       }),
     )
     .min(1)
@@ -132,9 +149,61 @@ const CreateManyRelationFieldsInputSchema = z.object({
     .describe('Relations to create (max 20).'),
 });
 
+const normalizeRelationCreationPayloadIcon = (
+  relationCreationPayload: unknown,
+): unknown => {
+  if (
+    !isDefined(relationCreationPayload) ||
+    typeof relationCreationPayload !== 'object' ||
+    Array.isArray(relationCreationPayload)
+  ) {
+    return relationCreationPayload;
+  }
+
+  const { targetFieldIcon } = relationCreationPayload as {
+    targetFieldIcon?: string;
+  };
+
+  return {
+    ...relationCreationPayload,
+    targetFieldIcon:
+      normalizeIconName(targetFieldIcon) ??
+      FIELD_TYPE_DEFAULT_ICONS[FieldMetadataType.RELATION],
+  };
+};
+
 @Injectable()
 export class FieldMetadataToolsFactory {
-  constructor(private readonly fieldMetadataService: FieldMetadataService) {}
+  constructor(
+    private readonly fieldMetadataService: FieldMetadataService,
+    private readonly flatEntityMapsCacheService: WorkspaceManyOrAllFlatEntityMapsCacheService,
+  ) {}
+
+  private async getObjectMetadataIdOrThrow(
+    workspaceId: string,
+    objectName: string,
+  ): Promise<string> {
+    const { flatObjectMetadataMaps } =
+      await this.flatEntityMapsCacheService.getOrRecomputeManyOrAllFlatEntityMaps(
+        {
+          workspaceId,
+          flatMapsKeys: ['flatObjectMetadataMaps'],
+        },
+      );
+
+    const objectMetadataId = getObjectMetadataIdByName({
+      flatObjectMetadataMaps,
+      objectName,
+    });
+
+    if (!isDefined(objectMetadataId)) {
+      throw new Error(
+        `Object "${objectName}" not found. Use get_object_metadata to list available objects.`,
+      );
+    }
+
+    return objectMetadataId;
+  }
 
   generateTools(workspaceId: string): ToolSet {
     return {
@@ -145,16 +214,26 @@ export class FieldMetadataToolsFactory {
         execute: async (parameters: {
           id?: string;
           objectMetadataId?: string;
+          objectName?: string;
           includeFullSystemFields?: boolean;
           limit?: number;
         }) => {
+          const objectMetadataId =
+            parameters.objectMetadataId ??
+            (parameters.objectName
+              ? await this.getObjectMetadataIdOrThrow(
+                  workspaceId,
+                  parameters.objectName,
+                )
+              : undefined);
+
           const rawResults = await this.fieldMetadataService.query({
             filter: {
               workspaceId: { eq: workspaceId },
               ...(parameters.id ? { id: { eq: parameters.id } } : {}),
-              ...(parameters.objectMetadataId
+              ...(isDefined(objectMetadataId)
                 ? {
-                    objectMetadataId: { eq: parameters.objectMetadataId },
+                    objectMetadataId: { eq: objectMetadataId },
                   }
                 : {}),
             },
@@ -164,7 +243,10 @@ export class FieldMetadataToolsFactory {
           const compactedFields = (
             rawResults as unknown as Record<string, unknown>[]
           )
-            .filter((field) => !EXCLUDED_FIELD_NAMES.has(field.name as string))
+            .filter(
+              (field) =>
+                !METADATA_TOOL_EXCLUDED_FIELD_NAMES.has(field.name as string),
+            )
             .map((field) => {
               if (field.isSystem && !parameters.includeFullSystemFields) {
                 return {
@@ -207,9 +289,20 @@ export class FieldMetadataToolsFactory {
           relationCreationPayload?: unknown;
         }) => {
           try {
+            const { icon, relationCreationPayload, ...createFieldInput } =
+              parameters;
+
             const flatFieldMetadata =
               await this.fieldMetadataService.createOneField({
-                createFieldInput: parameters as Parameters<
+                createFieldInput: {
+                  ...createFieldInput,
+                  icon:
+                    normalizeIconName(icon) ??
+                    FIELD_TYPE_DEFAULT_ICONS[parameters.type],
+                  relationCreationPayload: normalizeRelationCreationPayloadIcon(
+                    relationCreationPayload,
+                  ),
+                } as Parameters<
                   typeof this.fieldMetadataService.createOneField
                 >[0]['createFieldInput'],
                 workspaceId,
@@ -249,11 +342,18 @@ export class FieldMetadataToolsFactory {
           isLabelSyncedWithName?: boolean;
         }) => {
           try {
-            const { id, ...update } = parameters;
+            const { id, icon, ...update } = parameters;
+            const normalizedIcon = normalizeIconName(icon);
 
             const flatFieldMetadata =
               await this.fieldMetadataService.updateOneField({
-                updateFieldInput: { id, ...update } as Parameters<
+                updateFieldInput: {
+                  id,
+                  ...update,
+                  ...(isDefined(normalizedIcon)
+                    ? { icon: normalizedIcon }
+                    : {}),
+                } as Parameters<
                   typeof this.fieldMetadataService.updateOneField
                 >[0]['updateFieldInput'],
                 workspaceId,
@@ -317,7 +417,17 @@ export class FieldMetadataToolsFactory {
         }) => {
           try {
             await this.fieldMetadataService.createManyFields({
-              createFieldInputs: parameters.fields as Parameters<
+              createFieldInputs: parameters.fields.map(
+                ({ icon, relationCreationPayload, ...createFieldInput }) => ({
+                  ...createFieldInput,
+                  icon:
+                    normalizeIconName(icon) ??
+                    FIELD_TYPE_DEFAULT_ICONS[createFieldInput.type],
+                  relationCreationPayload: normalizeRelationCreationPayloadIcon(
+                    relationCreationPayload,
+                  ),
+                }),
+              ) as Parameters<
                 typeof this.fieldMetadataService.createManyFields
               >[0]['createFieldInputs'],
               workspaceId,
@@ -354,9 +464,17 @@ export class FieldMetadataToolsFactory {
         }) => {
           try {
             await Promise.all(
-              parameters.fields.map(async ({ id, ...update }) => {
+              parameters.fields.map(async ({ id, icon, ...update }) => {
+                const normalizedIcon = normalizeIconName(icon);
+
                 await this.fieldMetadataService.updateOneField({
-                  updateFieldInput: { id, ...update } as Parameters<
+                  updateFieldInput: {
+                    id,
+                    ...update,
+                    ...(isDefined(normalizedIcon)
+                      ? { icon: normalizedIcon }
+                      : {}),
+                  } as Parameters<
                     typeof this.fieldMetadataService.updateOneField
                   >[0]['updateFieldInput'],
                   workspaceId,
@@ -397,12 +515,16 @@ export class FieldMetadataToolsFactory {
                 name: relation.name,
                 label: relation.label,
                 description: relation.description,
-                icon: relation.icon,
+                icon:
+                  normalizeIconName(relation.icon) ??
+                  FIELD_TYPE_DEFAULT_ICONS[FieldMetadataType.RELATION],
                 relationCreationPayload: {
                   type: relation.type,
                   targetObjectMetadataId: relation.targetObjectMetadataId,
                   targetFieldLabel: relation.targetFieldLabel,
-                  targetFieldIcon: relation.targetFieldIcon,
+                  targetFieldIcon:
+                    normalizeIconName(relation.targetFieldIcon) ??
+                    FIELD_TYPE_DEFAULT_ICONS[FieldMetadataType.RELATION],
                 },
               })) as Parameters<
                 typeof this.fieldMetadataService.createManyFields

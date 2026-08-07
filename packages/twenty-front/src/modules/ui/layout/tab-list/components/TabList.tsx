@@ -12,8 +12,8 @@ import { styled } from '@linaria/react';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isDefined } from 'twenty-shared/utils';
-import { TabButton } from 'twenty-ui-deprecated/input';
-import { themeCssVariables } from 'twenty-ui-deprecated/theme-constants';
+import { TabButton } from 'twenty-ui/input';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
 import { TabListDropdown } from './TabListDropdown';
 import { TabListFromUrlOptionalEffect } from './TabListFromUrlOptionalEffect';
 
@@ -36,9 +36,11 @@ const StyledContainer = styled.div`
   }
 `;
 
-const StyledInnerContainer = styled.div`
+const StyledInnerContainer = styled.div<{ $centerTabs: boolean }>`
   display: flex;
   flex: 1;
+  justify-content: ${({ $centerTabs }) =>
+    $centerTabs ? 'center' : 'flex-start'};
   min-width: 0;
 `;
 
@@ -76,6 +78,7 @@ export const TabList = ({
   componentInstanceId,
   onChangeTab,
   rightComponent,
+  centerTabs = false,
 }: TabListProps) => {
   const visibleTabs = tabs.filter((tab) => !tab.hide);
   const navigate = useNavigate();
@@ -160,7 +163,7 @@ export const TabList = ({
 
         <StyledContainer className={className}>
           <StyledNodeDimension onDimensionChange={onContainerWidthChange}>
-            <StyledInnerContainer>
+            <StyledInnerContainer $centerTabs={centerTabs}>
               <StyledTabContainer>
                 {visibleTabs.slice(0, visibleTabCount).map((tab) => (
                   <TabButton

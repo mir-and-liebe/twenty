@@ -8,7 +8,7 @@ import { RecordTableCellContext } from '@/object-record/record-table/contexts/Re
 import { useRecordTableContextOrThrow } from '@/object-record/record-table/contexts/RecordTableContext';
 import { useOpenRecordTableCellFromCell } from '@/object-record/record-table/record-table-cell/hooks/useOpenRecordTableCellFromCell';
 import { getRecordTableCellId } from '@/object-record/record-table/utils/getRecordTableCellId';
-import { ThemeContext } from 'twenty-ui-deprecated/theme-constants';
+import { ThemeContext } from 'twenty-ui/theme-constants';
 
 const StyledBaseContainer = styled.div<{
   fontColorMedium: string;
@@ -25,22 +25,24 @@ const StyledBaseContainer = styled.div<{
 
   user-select: none;
 
-  &:hover {
-    background-color: ${({ isReadOnly, backgroundColorSecondary }) =>
-      isReadOnly ? backgroundColorSecondary : 'unset'};
-    border-radius: ${({ isReadOnly }) => (isReadOnly ? '0px' : 'unset')};
-    color: ${({ isReadOnly, fontColorSecondary }) =>
-      isReadOnly ? fontColorSecondary : 'unset'};
-    outline: ${({ isReadOnly, fontColorMedium }) =>
-      isReadOnly ? `1px solid ${fontColorMedium}` : 'unset'};
-
-    svg {
+  @media (hover: hover) {
+    &:hover {
+      background-color: ${({ isReadOnly, backgroundColorSecondary }) =>
+        isReadOnly ? backgroundColorSecondary : 'unset'};
+      border-radius: ${({ isReadOnly }) => (isReadOnly ? '0px' : 'unset')};
       color: ${({ isReadOnly, fontColorSecondary }) =>
         isReadOnly ? fontColorSecondary : 'unset'};
-    }
+      outline: ${({ isReadOnly, fontColorMedium }) =>
+        isReadOnly ? `1px solid ${fontColorMedium}` : 'unset'};
 
-    img {
-      opacity: ${({ isReadOnly }) => (isReadOnly ? '0.64' : 'unset')};
+      svg {
+        color: ${({ isReadOnly, fontColorSecondary }) =>
+          isReadOnly ? fontColorSecondary : 'unset'};
+      }
+
+      img {
+        opacity: ${({ isReadOnly }) => (isReadOnly ? '0.64' : 'unset')};
+      }
     }
   }
 `;

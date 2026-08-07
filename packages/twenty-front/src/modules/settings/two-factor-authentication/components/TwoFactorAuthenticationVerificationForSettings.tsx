@@ -1,7 +1,7 @@
 import { styled } from '@linaria/react';
 import { OTPInput } from 'input-otp';
 import { Controller, useFormContext } from 'react-hook-form';
-import { themeCssVariables } from 'twenty-ui-deprecated/theme-constants';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
 
 import { TwoFactorAuthenticationVerificationCodeDash } from '@/settings/two-factor-authentication/components/TwoFactorAuthenticationVerificationCodeDash';
 import { TwoFactorAuthenticationVerificationCodeSlot } from '@/settings/two-factor-authentication/components/TwoFactorAuthenticationVerificationCodeSlot';
@@ -34,6 +34,7 @@ export const TwoFactorAuthenticationVerificationForSettings = () => {
           onBlur={onBlur}
           onChange={onChange}
           value={value}
+          autoFocus
           render={({ slots }) => (
             <StyledOTPContainer>
               {slots.slice(0, 3).map((slot, idx) => (

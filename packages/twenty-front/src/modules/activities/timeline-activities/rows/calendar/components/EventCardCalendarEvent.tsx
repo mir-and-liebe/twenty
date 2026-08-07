@@ -13,7 +13,7 @@ import { useContext } from 'react';
 import { FIELD_RESTRICTED_ADDITIONAL_PERMISSIONS_REQUIRED } from 'twenty-shared/constants';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { isDefined } from 'twenty-shared/utils';
-import { themeCssVariables } from 'twenty-ui-deprecated/theme-constants';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
 import {
   formatToHumanReadableDay,
   formatToHumanReadableMonth,
@@ -116,6 +116,11 @@ export const EventCardCalendarEvent = ({
         handle: true,
         displayName: true,
       },
+      callRecordings: {
+        id: true,
+        status: true,
+        applicationId: true,
+      },
     },
   });
 
@@ -195,9 +200,11 @@ export const EventCardCalendarEvent = ({
               {calendarEvent.title}
             </StyledCalendarEventTitle>
           )}
-          {!!calendarEvent.calendarEventParticipants?.length && (
+          {(!!calendarEvent.calendarEventParticipants?.length ||
+            !!calendarEvent.callRecordings?.length) && (
             <CalendarEventParticipantsAvatarGroup
-              participants={calendarEvent.calendarEventParticipants}
+              participants={calendarEvent.calendarEventParticipants ?? []}
+              callRecordings={calendarEvent.callRecordings}
             />
           )}
         </StyledCalendarEventTop>

@@ -1,4 +1,8 @@
-import { FieldMetadataType, RelationType } from 'twenty-shared/types';
+import {
+  FieldMetadataType,
+  ObjectOpenRecordIn,
+  RelationType,
+} from 'twenty-shared/types';
 
 import {
   computeUpdatedFieldsFromDiff,
@@ -25,6 +29,7 @@ const mockObjectMetadata: FlatObjectMetadata = {
   isAuditLogged: true,
   isSearchable: true,
   indexMetadataIds: [],
+  searchFieldMetadataIds: [],
   objectPermissionIds: [],
   fieldPermissionIds: [],
   fieldIds: [],
@@ -35,9 +40,10 @@ const mockObjectMetadata: FlatObjectMetadata = {
   updatedAt: new Date().toISOString(),
   shortcut: null,
   description: null,
-  standardOverrides: null,
+  overrides: null,
   isUIEditable: true,
   isUICreatable: true,
+  openRecordIn: ObjectOpenRecordIn.USER_CHOICE,
   labelIdentifierFieldMetadataId: null,
   imageIdentifierFieldMetadataId: null,
   duplicateCriteria: null,
@@ -47,6 +53,7 @@ const mockObjectMetadata: FlatObjectMetadata = {
   fieldPermissionUniversalIdentifiers: [],
   viewUniversalIdentifiers: [],
   indexMetadataUniversalIdentifiers: [],
+  searchFieldMetadataUniversalIdentifiers: [],
   labelIdentifierFieldMetadataUniversalIdentifier: null,
   imageIdentifierFieldMetadataUniversalIdentifier: null,
 };

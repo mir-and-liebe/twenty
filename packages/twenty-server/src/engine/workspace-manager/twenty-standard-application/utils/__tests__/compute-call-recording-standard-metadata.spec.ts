@@ -2,8 +2,10 @@ import {
   STANDARD_OBJECTS,
   STANDARD_PAGE_LAYOUT_UNIVERSAL_IDENTIFIERS,
 } from 'twenty-shared/metadata';
+import { type FieldMetadataType } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 
+import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
 import { WidgetConfigurationType } from 'src/engine/metadata-modules/page-layout-widget/enums/widget-configuration-type.type';
 import { computeTwentyStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 
@@ -36,6 +38,23 @@ describe('CallRecording standard metadata build', () => {
     expect(callRecording?.isSystem).toBe(true);
   });
 
+  it('offers the full recording lifecycle as status options', () => {
+    const statusField = allFlatEntityMaps.flatFieldMetadataMaps
+      .byUniversalIdentifier[
+      STANDARD_OBJECTS.callRecording.fields.status.universalIdentifier
+    ] as FlatFieldMetadata<FieldMetadataType.SELECT> | undefined;
+
+    expect(statusField?.options?.map((option) => option.value)).toEqual([
+      'SCHEDULED',
+      'JOINING',
+      'RECORDING',
+      'PROCESSING',
+      'COMPLETED',
+      'FAILED',
+      'NOT_RECORDED',
+    ]);
+  });
+
   it('links callRecording to a calendarEvent through a direct relation', () => {
     const calendarEventField =
       allFlatEntityMaps.flatFieldMetadataMaps.byUniversalIdentifier[
@@ -55,17 +74,7 @@ describe('CallRecording standard metadata build', () => {
     expect(calendarEventIdIndex).toBeDefined();
   });
 
-  it('stores the per-event recording preference on calendarEvent', () => {
-    const recordingPreferenceField =
-      allFlatEntityMaps.flatFieldMetadataMaps.byUniversalIdentifier[
-        STANDARD_OBJECTS.calendarEvent.fields.recordingPreference
-          .universalIdentifier
-      ];
-
-    expect(recordingPreferenceField).toBeDefined();
-  });
-
-  it('keeps the callRecording table view focused on its label identifier and status', () => {
+  it('keeps the callRecording table view focused on its label identifier and statuses', () => {
     const viewFieldFieldUniversalIdentifiers = Object.values(
       allFlatEntityMaps.flatViewFieldMaps.byUniversalIdentifier,
     )
@@ -78,11 +87,13 @@ describe('CallRecording standard metadata build', () => {
       )
       .map((viewField) => viewField.fieldMetadataUniversalIdentifier);
 
-    expect(viewFieldFieldUniversalIdentifiers).toHaveLength(3);
+    expect(viewFieldFieldUniversalIdentifiers).toHaveLength(4);
     expect(viewFieldFieldUniversalIdentifiers).toEqual(
       expect.arrayContaining([
         STANDARD_OBJECTS.callRecording.fields.title.universalIdentifier,
         STANDARD_OBJECTS.callRecording.fields.status.universalIdentifier,
+        STANDARD_OBJECTS.callRecording.fields.recordingRequestStatus
+          .universalIdentifier,
         STANDARD_OBJECTS.callRecording.fields.startedAt.universalIdentifier,
       ]),
     );
@@ -101,11 +112,13 @@ describe('CallRecording standard metadata build', () => {
       )
       .map((viewField) => viewField.fieldMetadataUniversalIdentifier);
 
-    expect(viewFieldFieldUniversalIdentifiers).toHaveLength(8);
+    expect(viewFieldFieldUniversalIdentifiers).toHaveLength(9);
     expect(viewFieldFieldUniversalIdentifiers).toEqual(
       expect.arrayContaining([
         STANDARD_OBJECTS.callRecording.fields.title.universalIdentifier,
         STANDARD_OBJECTS.callRecording.fields.status.universalIdentifier,
+        STANDARD_OBJECTS.callRecording.fields.recordingRequestStatus
+          .universalIdentifier,
         STANDARD_OBJECTS.callRecording.fields.startedAt.universalIdentifier,
         STANDARD_OBJECTS.callRecording.fields.endedAt.universalIdentifier,
         STANDARD_OBJECTS.callRecording.fields.video.universalIdentifier,

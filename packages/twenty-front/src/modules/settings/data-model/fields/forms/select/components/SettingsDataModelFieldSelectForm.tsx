@@ -1,5 +1,5 @@
 import { styled } from '@linaria/react';
-import { type DropResult } from '@hello-pangea/dnd';
+import { type DraggableListDropResult } from '@/ui/layout/draggable-list/types/DraggableListDropResult';
 import { Controller, useFormContext } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -39,14 +39,11 @@ import {
   IconPlus,
   IconPoint,
   IconTrash,
-} from 'twenty-ui-deprecated/display';
-import { LightButton, LightIconButton } from 'twenty-ui-deprecated/input';
-import { CardContent, CardFooter } from 'twenty-ui-deprecated/layout';
-import { MenuItem } from 'twenty-ui-deprecated/navigation';
-import {
-  ThemeContext,
-  themeCssVariables,
-} from 'twenty-ui-deprecated/theme-constants';
+} from 'twenty-ui/icon';
+import { LightButton, LightIconButton } from 'twenty-ui/input';
+import { CardContent, CardFooter } from 'twenty-ui/surfaces';
+import { MenuItem } from 'twenty-ui/navigation';
+import { ThemeContext, themeCssVariables } from 'twenty-ui/theme-constants';
 import { SettingsDataModelFieldSelectFormOptionRow } from './SettingsDataModelFieldSelectFormOptionRow';
 
 export const settingsDataModelFieldSelectFormSchema = z.object({
@@ -213,7 +210,7 @@ export const SettingsDataModelFieldSelectForm = ({
 
   const handleDragEnd = (
     values: FieldMetadataItemOption[],
-    result: DropResult,
+    result: DraggableListDropResult,
     onChange: (options: FieldMetadataItemOption[]) => void,
   ) => {
     if (!result.destination) return;
@@ -443,7 +440,6 @@ export const SettingsDataModelFieldSelectForm = ({
                         <>
                           {options.map((option, index) => (
                             <DraggableItem
-                              isInsideScrollableContainer
                               key={option.id}
                               draggableId={option.id}
                               index={index}

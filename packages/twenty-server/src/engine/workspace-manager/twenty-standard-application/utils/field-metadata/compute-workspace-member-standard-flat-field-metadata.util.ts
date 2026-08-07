@@ -5,6 +5,7 @@ import {
   FieldMetadataType,
   NumberDataType,
   RelationType,
+  OpenRecordIn,
 } from 'twenty-shared/types';
 
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
@@ -14,11 +15,7 @@ import {
   createStandardFieldFlatMetadata,
 } from 'src/engine/workspace-manager/twenty-standard-application/utils/field-metadata/create-standard-field-flat-metadata.util';
 import { createStandardRelationFieldFlatMetadata } from 'src/engine/workspace-manager/twenty-standard-application/utils/field-metadata/create-standard-relation-field-flat-metadata.util';
-import { getTsVectorColumnExpressionFromFields } from 'src/engine/workspace-manager/utils/get-ts-vector-column-expression.util';
-import {
-  SEARCH_FIELDS_FOR_WORKSPACE_MEMBER,
-  WorkspaceMemberNumberFormatEnum,
-} from 'src/modules/workspace-member/standard-objects/workspace-member.workspace-entity';
+import { WorkspaceMemberNumberFormatEnum } from 'src/modules/workspace-member/standard-objects/workspace-member.workspace-entity';
 
 export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
   now,
@@ -167,6 +164,27 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     twentyStandardApplicationId,
     now,
   }),
+  openRecordIn: createStandardFieldFlatMetadata({
+    objectName,
+    workspaceId,
+    context: {
+      fieldName: 'openRecordIn',
+      type: FieldMetadataType.TEXT,
+      label: i18nLabel(msg`Open Records In`),
+      description: i18nLabel(
+        msg`Where records open for objects that follow the member's preference`,
+      ),
+      icon: 'IconLayoutSidebarRight',
+      isSystem: true,
+      isNullable: false,
+      isUIEditable: false,
+      defaultValue: `'${OpenRecordIn.SIDE_PANEL}'`,
+    },
+    standardObjectMetadataRelatedEntityIds,
+    dependencyFlatEntityMaps,
+    twentyStandardApplicationId,
+    now,
+  }),
   locale: createStandardFieldFlatMetadata({
     objectName,
     workspaceId,
@@ -217,6 +235,24 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
       isNullable: true,
       isUIEditable: false,
       isUnique: true,
+    },
+    standardObjectMetadataRelatedEntityIds,
+    dependencyFlatEntityMaps,
+    twentyStandardApplicationId,
+    now,
+  }),
+  jobTitle: createStandardFieldFlatMetadata({
+    objectName,
+    workspaceId,
+    context: {
+      fieldName: 'jobTitle',
+      type: FieldMetadataType.TEXT,
+      label: i18nLabel(msg`Job Title`),
+      description: i18nLabel(msg`Workspace member job title`),
+      icon: 'IconBriefcase',
+      isSystem: true,
+      isNullable: true,
+      isUIEditable: false,
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
@@ -441,12 +477,6 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
       isSystem: true,
       isNullable: true,
       isUIEditable: false,
-      settings: {
-        generatedType: 'STORED',
-        asExpression: getTsVectorColumnExpressionFromFields(
-          SEARCH_FIELDS_FOR_WORKSPACE_MEMBER,
-        ),
-      },
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,

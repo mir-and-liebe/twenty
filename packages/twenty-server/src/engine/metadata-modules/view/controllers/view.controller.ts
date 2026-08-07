@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 
 import { type APP_LOCALES } from 'twenty-shared/translations';
+import { ApiPath } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 
 import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
@@ -24,7 +25,7 @@ import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
 import { WorkspaceAuthGuard } from 'src/engine/guards/workspace-auth.guard';
 import { WorkspaceManyOrAllFlatEntityMapsCacheService } from 'src/engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.service';
 import { findFlatEntityByIdInFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-id-in-flat-entity-maps.util';
-import { resolveObjectMetadataStandardOverride } from 'src/engine/metadata-modules/object-metadata/utils/resolve-object-metadata-standard-override.util';
+import { resolveEffectiveEntityProperty } from 'src/engine/metadata-modules/utils/resolve-effective-entity-property.util';
 import { belongsToTwentyStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-twenty-standard-app.util';
 import { CreateViewPermissionGuard } from 'src/engine/metadata-modules/view-permissions/guards/create-view-permission.guard';
 import { DeleteViewPermissionGuard } from 'src/engine/metadata-modules/view-permissions/guards/delete-view-permission.guard';
@@ -45,7 +46,7 @@ import { FlatEntityMapsRestApiExceptionFilter } from 'src/engine/metadata-module
 import { PermissionsRestApiExceptionFilter } from 'src/engine/metadata-modules/permissions/utils/permissions-rest-api-exception.filter';
 import { WorkspaceMigrationRunnerRestApiExceptionFilter } from 'src/engine/workspace-manager/workspace-migration/filters/workspace-migration-runner-rest-api-exception.filter';
 
-@Controller('rest/metadata/views')
+@Controller(`${ApiPath.Rest}/metadata/views`)
 @UseGuards(WorkspaceAuthGuard)
 @UseFilters(
   PermissionsRestApiExceptionFilter,
@@ -211,19 +212,17 @@ export class ViewController {
 
         if (objectMetadata) {
           const i18n = this.i18nService.getI18nInstance(locale ?? 'en');
-          const translatedObjectLabel = resolveObjectMetadataStandardOverride(
-            {
-              labelPlural: objectMetadata.labelPlural,
-              labelSingular: objectMetadata.labelSingular,
-              description: objectMetadata.description ?? undefined,
-              icon: objectMetadata.icon ?? undefined,
-              isCustom: !belongsToTwentyStandardApp(objectMetadata),
-              standardOverrides: objectMetadata.standardOverrides ?? undefined,
+          const translatedObjectLabel = resolveEffectiveEntityProperty({
+            metadataName: 'objectMetadata',
+            baseValue: objectMetadata.labelPlural,
+            overrides: objectMetadata.overrides ?? undefined,
+            property: 'labelPlural',
+            i18nContext: {
+              locale,
+              i18nInstance: i18n,
+              isStandardApp: belongsToTwentyStandardApp(objectMetadata),
             },
-            'labelPlural',
-            locale,
-            i18n,
-          );
+          });
 
           processedName = this.viewService.processViewNameWithTemplate(
             view.name,

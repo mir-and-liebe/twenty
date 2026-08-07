@@ -21,7 +21,7 @@ import { useStore } from 'jotai';
 import { useCallback, useContext, useEffect } from 'react';
 import { isDefined } from 'twenty-shared/utils';
 
-import { useIcons } from 'twenty-ui-deprecated/display';
+import { useIcons } from 'twenty-ui/icon';
 
 export const WorkflowRunVisualizerEffect = ({
   workflowRunId,
@@ -246,12 +246,16 @@ export const WorkflowRunVisualizerEffect = ({
   ]);
 
   useEffect(() => {
-    if (!isDefined(workflowVersion)) {
+    if (!isDefined(workflowVersion) || !isDefined(workflowRun?.state)) {
       return;
     }
 
-    populateStepsOutputSchema(workflowVersion);
-  }, [populateStepsOutputSchema, workflowVersion]);
+    populateStepsOutputSchema({
+      ...workflowVersion,
+      trigger: workflowRun.state.flow.trigger,
+      steps: workflowRun.state.flow.steps,
+    });
+  }, [populateStepsOutputSchema, workflowRun?.state, workflowVersion]);
 
   return null;
 };

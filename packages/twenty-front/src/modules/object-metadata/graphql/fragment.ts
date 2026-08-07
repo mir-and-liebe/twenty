@@ -11,7 +11,6 @@ export const OBJECT_METADATA_FRAGMENT = gql`
     color
     description
     icon
-    isCustom
     isRemote
     isActive
     isSystem
@@ -25,7 +24,16 @@ export const OBJECT_METADATA_FRAGMENT = gql`
     shortcut
     isLabelSyncedWithName
     isSearchable
+    openRecordIn
     duplicateCriteria
+    searchFieldMetadataList {
+      id
+      fieldMetadataId
+      tsVectorFieldMetadataId
+      position
+      createdAt
+      updatedAt
+    }
     indexMetadataList {
       id
       createdAt
@@ -52,7 +60,6 @@ export const OBJECT_METADATA_FRAGMENT = gql`
       label
       description
       icon
-      isCustom
       isActive
       isSystem
       isUIEditable

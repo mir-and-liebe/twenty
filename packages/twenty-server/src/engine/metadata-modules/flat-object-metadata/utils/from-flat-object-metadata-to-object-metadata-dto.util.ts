@@ -1,6 +1,5 @@
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
 import { type ObjectMetadataDTO } from 'src/engine/metadata-modules/object-metadata/dtos/object-metadata.dto';
-import { belongsToTwentyStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-twenty-standard-app.util';
 
 export const fromFlatObjectMetadataToObjectMetadataDto = (
   flatObjectMetadata: FlatObjectMetadata,
@@ -11,7 +10,7 @@ export const fromFlatObjectMetadataToObjectMetadataDto = (
     color,
     description,
     icon,
-    standardOverrides,
+    overrides,
     shortcut,
     duplicateCriteria,
     id,
@@ -20,6 +19,7 @@ export const fromFlatObjectMetadataToObjectMetadataDto = (
     isLabelSyncedWithName,
     isRemote,
     isSearchable,
+    openRecordIn,
     isSystem,
     isUIEditable,
     isUICreatable,
@@ -37,10 +37,10 @@ export const fromFlatObjectMetadataToObjectMetadataDto = (
     id,
     universalIdentifier,
     isActive,
-    isCustom: !belongsToTwentyStandardApp(flatObjectMetadata),
     isLabelSyncedWithName,
     isRemote,
     isSearchable,
+    openRecordIn,
     isSystem,
     isUIEditable,
     isUICreatable,
@@ -57,7 +57,7 @@ export const fromFlatObjectMetadataToObjectMetadataDto = (
     color: color ?? undefined,
     description: description ?? undefined,
     icon: icon ?? undefined,
-    standardOverrides: standardOverrides ?? undefined,
+    overrides: overrides ?? undefined,
     shortcut: shortcut ?? undefined,
     duplicateCriteria: duplicateCriteria ?? undefined,
     applicationId,

@@ -1,9 +1,6 @@
 import { styled } from '@linaria/react';
 import { useContext } from 'react';
-import {
-  MOBILE_VIEWPORT,
-  themeCssVariables,
-} from 'twenty-ui-deprecated/theme-constants';
+import { MOBILE_VIEWPORT, themeCssVariables } from 'twenty-ui/theme-constants';
 
 import {
   RECORD_TABLE_CHECKBOX_WIDTH_CSS_VAR,
@@ -44,11 +41,13 @@ const StyledColumnFooterCell = styled.div<{
       ? `calc(var(${RECORD_TABLE_DRAG_DROP_WIDTH_CSS_VAR}) + var(${RECORD_TABLE_CHECKBOX_WIDTH_CSS_VAR}))`
       : 'auto'};
 
-  &:hover {
-    background: ${({ isReadOnly }) =>
-      isReadOnly
-        ? themeCssVariables.background.primary
-        : themeCssVariables.background.secondary};
+  @media (hover: hover) {
+    &:hover {
+      background: ${({ isReadOnly }) =>
+        isReadOnly
+          ? themeCssVariables.background.primary
+          : themeCssVariables.background.secondary};
+    }
   }
 
   min-width: ${({ columnWidth }) => columnWidth}px;

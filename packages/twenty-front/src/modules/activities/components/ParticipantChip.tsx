@@ -2,10 +2,12 @@ import { styled } from '@linaria/react';
 import React from 'react';
 
 import { getDisplayNameFromParticipant } from '@/activities/emails/utils/getDisplayNameFromParticipant';
+import { getEmailParticipantAvatarColorSeed } from '@/activities/emails/utils/getEmailParticipantAvatarColorSeed';
 import { CoreObjectNameSingular } from 'twenty-shared/types';
 import { RecordChip } from '@/object-record/components/RecordChip';
-import { Avatar } from 'twenty-ui-deprecated/display';
-import { themeCssVariables } from 'twenty-ui-deprecated/theme-constants';
+import { getAbsoluteImageUrl } from '~/utils/image/getAbsoluteImageUrl';
+import { Avatar } from 'twenty-ui/data-display';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
 
 const StyledAvatarContainer = styled.span`
   margin-right: ${themeCssVariables.spacing[1]};
@@ -69,9 +71,12 @@ export const ParticipantChip = ({
         <StyledChip>
           <StyledAvatarContainer>
             <Avatar
-              avatarUrl={avatarUrl}
+              avatarUrl={getAbsoluteImageUrl(avatarUrl)}
               type="rounded"
               placeholder={displayName}
+              placeholderColorSeed={getEmailParticipantAvatarColorSeed(
+                participant,
+              )}
               size="sm"
             />
           </StyledAvatarContainer>

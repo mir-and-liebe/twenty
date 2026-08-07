@@ -23,7 +23,7 @@ import { LayoutRenderingProvider } from '@/ui/layout/contexts/LayoutRenderingCon
 import { jotaiStore } from '@/ui/utilities/state/jotai/jotaiStore';
 import { type ViewWithRelations } from '@/views/types/ViewWithRelations';
 import { CoreObjectNameSingular } from 'twenty-shared/types';
-import { ComponentDecorator } from 'twenty-ui-deprecated/testing';
+import { ComponentDecorator } from 'twenty-ui/testing';
 import {
   ViewOpenRecordIn,
   ViewType,
@@ -345,6 +345,7 @@ export const WithViewFieldGroups: Story = {
                 <PageLayoutContentProvider
                   value={{
                     layoutMode: PageLayoutTabLayoutMode.VERTICAL_LIST,
+                    presentation: 'stack',
                     tabId: TAB_ID_OVERVIEW,
                   }}
                 >
@@ -425,6 +426,7 @@ export const WithDefaultGroups: Story = {
                 <PageLayoutContentProvider
                   value={{
                     layoutMode: PageLayoutTabLayoutMode.VERTICAL_LIST,
+                    presentation: 'stack',
                     tabId: TAB_ID_OVERVIEW,
                   }}
                 >
@@ -507,6 +509,7 @@ export const Empty: Story = {
                 <PageLayoutContentProvider
                   value={{
                     layoutMode: PageLayoutTabLayoutMode.VERTICAL_LIST,
+                    presentation: 'stack',
                     tabId: TAB_ID_OVERVIEW,
                   }}
                 >

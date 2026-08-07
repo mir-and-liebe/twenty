@@ -1,7 +1,8 @@
 import { styled } from '@linaria/react';
+import { useLingui } from '@lingui/react/macro';
 
 import { recordIndexAllRecordIdsComponentSelector } from '@/object-record/record-index/states/selectors/recordIndexAllRecordIdsComponentSelector';
-import { themeCssVariables } from 'twenty-ui-deprecated/theme-constants';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
 
 import { RECORD_TABLE_COLUMN_CHECKBOX_WIDTH } from '@/object-record/record-table/constants/RecordTableColumnCheckboxWidth';
 import { RECORD_TABLE_COLUMN_CHECKBOX_WIDTH_CLASS_NAME } from '@/object-record/record-table/constants/RecordTableColumnCheckboxWidthClassName';
@@ -14,7 +15,7 @@ import { allRowsSelectedStatusComponentSelector } from '@/object-record/record-t
 import { useAtomComponentSelectorValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentSelectorValue';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { cx } from '@linaria/core';
-import { Checkbox } from 'twenty-ui-deprecated/input';
+import { Checkbox } from 'twenty-ui/input';
 
 const StyledContainer = styled.div`
   align-items: center;
@@ -38,6 +39,8 @@ const StyledColumnHeaderCell = styled.div`
 `;
 
 export const RecordTableHeaderCheckboxColumn = () => {
+  const { t } = useLingui();
+
   const allRowsSelectedStatus = useAtomComponentSelectorValue(
     allRowsSelectedStatusComponentSelector,
   );
@@ -87,6 +90,7 @@ export const RecordTableHeaderCheckboxColumn = () => {
           onChange={onChange}
           indeterminate={indeterminate}
           disabled={recordTableIsEmpty}
+          aria-label={t`Select all rows`}
         />
       </StyledContainer>
     </StyledColumnHeaderCell>

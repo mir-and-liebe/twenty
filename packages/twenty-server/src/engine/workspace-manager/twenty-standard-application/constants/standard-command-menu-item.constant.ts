@@ -13,7 +13,7 @@ export const STANDARD_COMMAND_MENU_ITEMS = {
     shortLabel: null,
     availabilityType: CommandMenuItemAvailabilityType.RECORD_SELECTION,
     conditionalAvailabilityExpression:
-      'pageType == "RECORD_PAGE" and not isInSidePanel',
+      'pageType == "RECORD_PAGE" and not isInSidePanel and objectMetadataItem.nameSingular != "messageCampaign"',
     availabilityObjectMetadataUniversalIdentifier: null,
     frontComponentUniversalIdentifier: null,
     engineComponentKey: EngineComponentKey.NAVIGATE_TO_NEXT_RECORD,
@@ -29,7 +29,7 @@ export const STANDARD_COMMAND_MENU_ITEMS = {
     shortLabel: null,
     availabilityType: CommandMenuItemAvailabilityType.RECORD_SELECTION,
     conditionalAvailabilityExpression:
-      'pageType == "RECORD_PAGE" and not isInSidePanel',
+      'pageType == "RECORD_PAGE" and not isInSidePanel and objectMetadataItem.nameSingular != "messageCampaign"',
     availabilityObjectMetadataUniversalIdentifier: null,
     frontComponentUniversalIdentifier: null,
     engineComponentKey: EngineComponentKey.NAVIGATE_TO_PREVIOUS_RECORD,
@@ -104,7 +104,7 @@ export const STANDARD_COMMAND_MENU_ITEMS = {
     shortLabel: null,
     availabilityType: CommandMenuItemAvailabilityType.RECORD_SELECTION,
     conditionalAvailabilityExpression:
-      'arrayLength(favoriteRecordIds) < numberOfSelectedRecords and noneDefined(selectedRecords, "deletedAt") and not hasAnySoftDeleteFilterOnView',
+      'arrayLength(favoriteRecordIds) < numberOfSelectedRecords and noneDefined(selectedRecords, "deletedAt") and not hasAnySoftDeleteFilterOnView and objectMetadataItem.nameSingular != "messageCampaign"',
     availabilityObjectMetadataUniversalIdentifier: null,
     frontComponentUniversalIdentifier: null,
     engineComponentKey: EngineComponentKey.ADD_TO_FAVORITES,
@@ -119,7 +119,7 @@ export const STANDARD_COMMAND_MENU_ITEMS = {
     shortLabel: null,
     availabilityType: CommandMenuItemAvailabilityType.RECORD_SELECTION,
     conditionalAvailabilityExpression:
-      'arrayLength(favoriteRecordIds) == numberOfSelectedRecords and noneDefined(selectedRecords, "deletedAt") and not hasAnySoftDeleteFilterOnView',
+      'arrayLength(favoriteRecordIds) == numberOfSelectedRecords and noneDefined(selectedRecords, "deletedAt") and not hasAnySoftDeleteFilterOnView and objectMetadataItem.nameSingular != "messageCampaign"',
     availabilityObjectMetadataUniversalIdentifier: null,
     frontComponentUniversalIdentifier: null,
     engineComponentKey: EngineComponentKey.REMOVE_FROM_FAVORITES,
@@ -379,7 +379,7 @@ export const STANDARD_COMMAND_MENU_ITEMS = {
     shortLabel: 'Discard Draft',
     availabilityType: CommandMenuItemAvailabilityType.RECORD_SELECTION,
     conditionalAvailabilityExpression:
-      'every(selectedRecords, "versions.length") and everyEquals(selectedRecords, "currentVersion.status", "DRAFT") and noneDefined(selectedRecords, "deletedAt")',
+      'every(selectedRecords, "lastPublishedVersionId") and everyEquals(selectedRecords, "currentVersion.status", "DRAFT") and noneDefined(selectedRecords, "deletedAt")',
     availabilityObjectMetadataUniversalIdentifier:
       STANDARD_OBJECTS.workflow.universalIdentifier,
     frontComponentUniversalIdentifier: null,
@@ -725,11 +725,11 @@ export const STANDARD_COMMAND_MENU_ITEMS = {
   },
   composeCampaignPinned: {
     universalIdentifier: '7ad6f0c7-ac02-4062-b5cf-1f36e1664bc8',
-    label: 'Compose Campaign',
-    icon: 'IconSend',
+    label: 'Create new Campaign',
+    icon: 'IconPlus',
     isPinned: true,
     position: 67,
-    shortLabel: 'Campaign',
+    shortLabel: 'New Campaign',
     availabilityType: CommandMenuItemAvailabilityType.GLOBAL_OBJECT_CONTEXT,
     conditionalAvailabilityExpression:
       'pageType == "INDEX_PAGE" and featureFlags.IS_EMAIL_GROUP_ENABLED',
@@ -737,6 +737,54 @@ export const STANDARD_COMMAND_MENU_ITEMS = {
       STANDARD_OBJECTS.messageCampaign.universalIdentifier,
     frontComponentUniversalIdentifier: null,
     engineComponentKey: EngineComponentKey.COMPOSE_CAMPAIGN,
+    hotKeys: null,
+  },
+  sendMessageCampaign: {
+    universalIdentifier: 'b08f4ccd-070b-460f-a4b6-6d0c14f1c44d',
+    label: 'Send Campaign',
+    icon: 'IconSend',
+    isPinned: true,
+    position: 68,
+    shortLabel: 'Send',
+    availabilityType: CommandMenuItemAvailabilityType.RECORD_SELECTION,
+    conditionalAvailabilityExpression:
+      'numberOfSelectedRecords >= 1 and everyEquals(selectedRecords, "status", "DRAFT") and noneDefined(selectedRecords, "deletedAt")',
+    availabilityObjectMetadataUniversalIdentifier:
+      STANDARD_OBJECTS.messageCampaign.universalIdentifier,
+    frontComponentUniversalIdentifier: null,
+    engineComponentKey: EngineComponentKey.SEND_MESSAGE_CAMPAIGN,
+    hotKeys: null,
+  },
+  sendMessageCampaignTest: {
+    universalIdentifier: 'a6e6fd08-2c75-4d43-8795-1baafbac165e',
+    label: 'Send Test Email',
+    icon: 'IconMail',
+    isPinned: true,
+    position: 69,
+    shortLabel: 'Test',
+    availabilityType: CommandMenuItemAvailabilityType.RECORD_SELECTION,
+    conditionalAvailabilityExpression:
+      'numberOfSelectedRecords >= 1 and everyEquals(selectedRecords, "status", "DRAFT") and noneDefined(selectedRecords, "deletedAt")',
+    availabilityObjectMetadataUniversalIdentifier:
+      STANDARD_OBJECTS.messageCampaign.universalIdentifier,
+    frontComponentUniversalIdentifier: null,
+    engineComponentKey: EngineComponentKey.SEND_MESSAGE_CAMPAIGN_TEST,
+    hotKeys: null,
+  },
+  emailBlockSettings: {
+    universalIdentifier: '5c8a2f41-97be-4f3d-9a46-2f18d17f30a2',
+    label: 'Block Settings',
+    icon: 'IconAdjustments',
+    isPinned: true,
+    position: 70,
+    shortLabel: 'Design',
+    availabilityType: CommandMenuItemAvailabilityType.RECORD_SELECTION,
+    conditionalAvailabilityExpression:
+      'pageType == "RECORD_PAGE" and numberOfSelectedRecords == 1 and everyEquals(selectedRecords, "status", "DRAFT") and noneDefined(selectedRecords, "deletedAt")',
+    availabilityObjectMetadataUniversalIdentifier:
+      STANDARD_OBJECTS.messageCampaign.universalIdentifier,
+    frontComponentUniversalIdentifier: null,
+    engineComponentKey: EngineComponentKey.EMAIL_BLOCK_SETTINGS,
     hotKeys: null,
   },
   goToSettings: {
@@ -872,7 +920,7 @@ export const STANDARD_COMMAND_MENU_ITEMS = {
     frontComponentUniversalIdentifier: null,
     engineComponentKey: EngineComponentKey.NAVIGATION,
     hotKeys: null,
-    payload: { path: '/settings/roles' },
+    payload: { path: '/settings/members#roles' },
   },
   goToSettingsDomains: {
     universalIdentifier: '2d071684-fb5e-4222-b560-4c7ab2597fb4',
@@ -906,11 +954,11 @@ export const STANDARD_COMMAND_MENU_ITEMS = {
   },
   goToSettingsApiWebhooks: {
     universalIdentifier: 'ed2c2fde-1e7a-4a42-ba63-221eaa7c9759',
-    label: 'Go to APIs & Webhooks Settings',
-    icon: 'IconApi',
+    label: 'Go to MCP & APIs Settings',
+    icon: 'IconPlug',
     isPinned: false,
     position: 58,
-    shortLabel: 'APIs & Webhooks',
+    shortLabel: 'MCP & APIs',
     availabilityType: CommandMenuItemAvailabilityType.GLOBAL,
     conditionalAvailabilityExpression: 'permissionFlags.API_KEYS_AND_WEBHOOKS',
     availabilityObjectMetadataUniversalIdentifier: null,
@@ -922,7 +970,7 @@ export const STANDARD_COMMAND_MENU_ITEMS = {
   goToSettingsApplications: {
     universalIdentifier: '44db6d7a-79ac-485e-b3da-da8776bd7777',
     label: 'Go to Apps Settings',
-    icon: 'IconPlug',
+    icon: 'IconApps',
     isPinned: false,
     position: 59,
     shortLabel: 'Apps',

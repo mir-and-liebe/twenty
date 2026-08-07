@@ -1,6 +1,9 @@
 import { type FieldMetadataItem } from '@/object-metadata/types/FieldMetadataItem';
 import { type EnrichedObjectMetadataItem } from '@/object-metadata/types/EnrichedObjectMetadataItem';
-import { type RecordGqlOperationOrderBy } from 'twenty-shared/types';
+import {
+  type RecordGqlOperationOrderBy,
+  ObjectOpenRecordIn,
+} from 'twenty-shared/types';
 import { turnSortsIntoOrderBy } from '@/object-record/object-sort-dropdown/utils/turnSortsIntoOrderBy';
 import { type RecordSort } from '@/object-record/record-sort/types/RecordSort';
 import { type EachTestingContext } from 'twenty-shared/testing';
@@ -29,6 +32,7 @@ const objectMetadataItemWithPositionField: EnrichedObjectMetadataItem = {
   readableFields: fields,
   updatableFields: fields,
   indexMetadatas: [],
+  searchFieldMetadatas: [],
   createdAt: '2021-01-01',
   updatedAt: '2021-01-01',
   nameSingular: 'object1',
@@ -39,7 +43,7 @@ const objectMetadataItemWithPositionField: EnrichedObjectMetadataItem = {
   isSystem: false,
   isUIEditable: true,
   isUICreatable: true,
-  isCustom: false,
+  openRecordIn: ObjectOpenRecordIn.USER_CHOICE,
   isRemote: false,
   isSearchable: false,
   labelPlural: 'object1s',
@@ -192,6 +196,7 @@ describe('turnSortsIntoOrderBy', () => {
       readableFields: [],
       updatableFields: [],
       indexMetadatas: [],
+      searchFieldMetadatas: [],
       createdAt: '2021-01-01',
       updatedAt: '2021-01-01',
       nameSingular: 'company',
@@ -202,7 +207,7 @@ describe('turnSortsIntoOrderBy', () => {
       isSystem: false,
       isUIEditable: true,
       isUICreatable: true,
-      isCustom: false,
+      openRecordIn: ObjectOpenRecordIn.USER_CHOICE,
       isRemote: false,
       isSearchable: false,
       labelPlural: 'Companies',
@@ -243,6 +248,7 @@ describe('turnSortsIntoOrderBy', () => {
       readableFields: [],
       updatableFields: [],
       indexMetadatas: [],
+      searchFieldMetadatas: [],
       createdAt: '2021-01-01',
       updatedAt: '2021-01-01',
       nameSingular: 'person',
@@ -253,7 +259,7 @@ describe('turnSortsIntoOrderBy', () => {
       isSystem: false,
       isUIEditable: true,
       isUICreatable: true,
-      isCustom: false,
+      openRecordIn: ObjectOpenRecordIn.USER_CHOICE,
       isRemote: false,
       isSearchable: false,
       labelPlural: 'People',

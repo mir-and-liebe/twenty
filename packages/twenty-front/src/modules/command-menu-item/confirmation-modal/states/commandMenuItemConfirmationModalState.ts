@@ -2,7 +2,12 @@ import { type ReactNode } from 'react';
 
 import { type ConfirmationModalCaller } from 'twenty-shared/types';
 import { createAtomState } from '@/ui/utilities/state/jotai/utils/createAtomState';
-import { type ButtonAccent } from 'twenty-ui-deprecated/input';
+import { type ButtonAccent } from 'twenty-ui/input';
+
+export type CommandMenuItemConfirmationModalLinkButton = {
+  title: string;
+  to: string;
+};
 
 export type CommandMenuItemConfirmationModalConfig = {
   caller: ConfirmationModalCaller;
@@ -10,6 +15,7 @@ export type CommandMenuItemConfirmationModalConfig = {
   subtitle: ReactNode;
   confirmButtonText?: string;
   confirmButtonAccent?: ButtonAccent;
+  linkButton?: CommandMenuItemConfirmationModalLinkButton;
 };
 
 export const commandMenuItemConfirmationModalConfigState =

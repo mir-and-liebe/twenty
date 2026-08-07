@@ -5,6 +5,7 @@ export const mockedClientConfig: ClientConfig = {
   aiModels: [],
   signInPrefilled: true,
   isMultiWorkspaceEnabled: false,
+  isCookieSessionEnabled: false,
   isEmailVerificationRequired: false,
   authProviders: {
     google: true,
@@ -15,6 +16,7 @@ export const mockedClientConfig: ClientConfig = {
   },
   frontDomain: 'localhost',
   defaultSubdomain: 'app',
+  subdomainMinLength: 3,
   analyticsEnabled: true,
   support: {
     supportDriver: SupportDriver.FRONT,
@@ -44,6 +46,13 @@ export const mockedClientConfig: ClientConfig = {
     siteKey: 'MOCKED_SITE_KEY',
   },
   api: { mutationMaximumAffectedRecords: 100 },
+  onboarding: {
+    importContactsCreditsReward: 2,
+    inviteTeamMaxCreditsReward: 9,
+    inviteTeamCreditsRewardPerUser: 3,
+    upgradeCreditsReward: 5,
+    installAppsCreditsRewardPerApp: 1,
+  },
   canManageFeatureFlags: true,
   publicFeatureFlags: [],
   isMicrosoftMessagingEnabled: true,
@@ -59,4 +68,7 @@ export const mockedClientConfig: ClientConfig = {
   isCloudflareIntegrationEnabled: false,
   isClickHouseConfigured: false,
   isWorkspaceSchemaDDLLocked: false,
+  isOnboardingAiChatEnabled: false,
+  isBookCallOnboardingStepEnabled: false,
+  isCompanyEnrichmentEnabled: false,
 };

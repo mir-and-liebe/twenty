@@ -17,7 +17,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { PermissionFlagType } from 'twenty-shared/constants';
-import { FeatureFlagKey } from 'twenty-shared/types';
+import { ApiPath, FeatureFlagKey } from 'twenty-shared/types';
 import { Repository } from 'typeorm';
 
 import { parseEndingBeforeRestRequest } from 'src/engine/api/rest/input-request-parsers/ending-before-parser-utils/parse-ending-before-rest-request.util';
@@ -53,13 +53,13 @@ import {
   toLegacyFieldMetadataListResponse,
   toLegacyFieldMetadataUpdateResponse,
 } from 'src/engine/metadata-modules/field-metadata/utils/to-legacy-field-metadata-response.util';
+import { FlatEntityMapsRestApiExceptionFilter } from 'src/engine/metadata-modules/flat-entity/filters/flat-entity-maps-rest-api-exception.filter';
 import { WorkspaceManyOrAllFlatEntityMapsCacheService } from 'src/engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.service';
 import { fromFlatFieldMetadataToFieldMetadataDto } from 'src/engine/metadata-modules/flat-field-metadata/utils/from-flat-field-metadata-to-field-metadata-dto.util';
 import { computeUniqueFieldMetadataIdsFromFlatIndexMaps } from 'src/engine/metadata-modules/index-metadata/utils/compute-unique-field-metadata-ids-from-flat-index-maps.util';
 import { PermissionsRestApiExceptionFilter } from 'src/engine/metadata-modules/permissions/utils/permissions-rest-api-exception.filter';
-import { getTwentyStandardApplicationIdOrThrow } from 'src/engine/metadata-modules/utils/get-twenty-standard-application-id-or-throw.util';
 
-@Controller('rest/metadata/fields')
+@Controller(`${ApiPath.Rest}/metadata/fields`)
 @UseGuards(
   JwtAuthGuard,
   WorkspaceAuthGuard,
@@ -69,6 +69,7 @@ import { getTwentyStandardApplicationIdOrThrow } from 'src/engine/metadata-modul
   PermissionsRestApiExceptionFilter,
   FieldMetadataRestApiExceptionFilter,
   ApplicationRestApiExceptionFilter,
+  FlatEntityMapsRestApiExceptionFilter,
 )
 @UsePipes(new ValidationPipe())
 export class FieldMetadataController {
@@ -91,17 +92,6 @@ export class FieldMetadataController {
     return computeUniqueFieldMetadataIdsFromFlatIndexMaps(flatIndexMaps);
   }
 
-  private async loadStandardApplicationId(
-    workspaceId: string,
-  ): Promise<string> {
-    const { flatApplicationMaps } =
-      await this.flatEntityMapsCacheService.getOrRecomputeManyOrAllFlatEntityMaps(
-        { workspaceId, flatMapsKeys: ['flatApplicationMaps'] },
-      );
-
-    return getTwentyStandardApplicationIdOrThrow(flatApplicationMaps);
-  }
-
   @Get()
   async findMany(
     @Req() request: AuthenticatedRequest,
@@ -115,10 +105,8 @@ export class FieldMetadataController {
       endingBefore: parseEndingBeforeRestRequest(request),
     });
 
-    const [uniqueFieldMetadataIds, standardApplicationId] = await Promise.all([
-      this.loadUniqueFieldMetadataIds(workspaceId),
-      this.loadStandardApplicationId(workspaceId),
-    ]);
+    const uniqueFieldMetadataIds =
+      await this.loadUniqueFieldMetadataIds(workspaceId);
 
     const result: {
       data: FieldMetadataDTO[];
@@ -126,11 +114,7 @@ export class FieldMetadataController {
       totalCount: number;
     } = {
       data: items.map((item) =>
-        fromFieldMetadataEntityToFieldMetadataDto(
-          item,
-          standardApplicationId,
-          uniqueFieldMetadataIds,
-        ),
+        fromFieldMetadataEntityToFieldMetadataDto(item, uniqueFieldMetadataIds),
       ),
       pageInfo,
       totalCount,
@@ -157,13 +141,10 @@ export class FieldMetadataController {
       );
     }
 
-    const [uniqueFieldMetadataIds, standardApplicationId] = await Promise.all([
-      this.loadUniqueFieldMetadataIds(workspaceId),
-      this.loadStandardApplicationId(workspaceId),
-    ]);
+    const uniqueFieldMetadataIds =
+      await this.loadUniqueFieldMetadataIds(workspaceId);
     const result = fromFieldMetadataEntityToFieldMetadataDto(
       field,
-      standardApplicationId,
       uniqueFieldMetadataIds,
     );
 

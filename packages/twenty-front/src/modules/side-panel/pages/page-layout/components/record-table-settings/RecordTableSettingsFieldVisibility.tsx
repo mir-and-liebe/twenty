@@ -3,12 +3,12 @@ import { useReorderRecordTableWidgetFields } from '@/page-layout/widgets/record-
 import { useToggleRecordTableWidgetFieldVisibility } from '@/page-layout/widgets/record-table/hooks/useToggleRecordTableWidgetFieldVisibility';
 import { DraggableItem } from '@/ui/layout/draggable-list/components/DraggableItem';
 import { DraggableList } from '@/ui/layout/draggable-list/components/DraggableList';
-import { type DropResult } from '@hello-pangea/dnd';
+import { type DraggableListDropResult } from '@/ui/layout/draggable-list/types/DraggableListDropResult';
 import { styled } from '@linaria/react';
 import { useMemo } from 'react';
-import { IconEye, IconEyeOff, useIcons } from 'twenty-ui-deprecated/display';
-import { MenuItemDraggable } from 'twenty-ui-deprecated/navigation';
-import { themeCssVariables } from 'twenty-ui-deprecated/theme-constants';
+import { IconEye, IconEyeOff, useIcons } from 'twenty-ui/icon';
+import { MenuItemDraggable } from 'twenty-ui/navigation';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
 
 const StyledFieldListContainer = styled.div`
   display: flex;
@@ -65,7 +65,7 @@ export const RecordTableSettingsFieldVisibility = ({
     [recordTableWidgetViewFieldItems],
   );
 
-  const handleDragEnd = (result: DropResult) => {
+  const handleDragEnd = (result: DraggableListDropResult) => {
     const { source, destination } = result;
 
     if (!destination) {

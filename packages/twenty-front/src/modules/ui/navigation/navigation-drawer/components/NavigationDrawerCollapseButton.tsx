@@ -3,13 +3,14 @@ import { navigationDrawerActiveTabState } from '@/ui/navigation/states/navigatio
 import { NAVIGATION_DRAWER_TABS } from '@/ui/navigation/states/navigationDrawerTabs';
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
+import { t } from '@lingui/core/macro';
 import { styled } from '@linaria/react';
 import {
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarRightCollapse,
-} from 'twenty-ui-deprecated/display';
-import { LightIconButton } from 'twenty-ui-deprecated/input';
-import { themeCssVariables } from 'twenty-ui-deprecated/theme-constants';
+} from 'twenty-ui/icon';
+import { LightIconButton } from 'twenty-ui/input';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
 
 const StyledCollapseButton = styled.div`
   align-items: center;
@@ -53,6 +54,11 @@ export const NavigationDrawerCollapseButton = ({
         }
         accent="secondary"
         size="small"
+        aria-label={
+          direction === 'left'
+            ? t`Collapse navigation panel`
+            : t`Expand navigation panel`
+        }
       />
     </StyledCollapseButton>
   );

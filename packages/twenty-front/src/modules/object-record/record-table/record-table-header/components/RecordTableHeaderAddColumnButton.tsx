@@ -18,11 +18,8 @@ import { useAtomComponentSelectorValue } from '@/ui/utilities/state/jotai/hooks/
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { cx } from '@linaria/core';
 import { useContext } from 'react';
-import { IconPlus } from 'twenty-ui-deprecated/display';
-import {
-  ThemeContext,
-  themeCssVariables,
-} from 'twenty-ui-deprecated/theme-constants';
+import { IconPlus } from 'twenty-ui/icon';
+import { ThemeContext, themeCssVariables } from 'twenty-ui/theme-constants';
 
 const StyledPlusIconHeaderCell = styled.div<{
   shouldDisplayBorderBottom: boolean;
@@ -44,8 +41,10 @@ const StyledPlusIconHeaderCell = styled.div<{
   width: ${RECORD_TABLE_COLUMN_ADD_COLUMN_BUTTON_WIDTH}px;
   z-index: 1;
 
-  &:hover {
-    background: ${themeCssVariables.background.secondary};
+  @media (hover: hover) {
+    &:hover {
+      background: ${themeCssVariables.background.secondary};
+    }
   }
 `;
 
